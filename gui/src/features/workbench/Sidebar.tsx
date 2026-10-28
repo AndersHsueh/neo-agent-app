@@ -1,7 +1,7 @@
 import { Icon } from "@/components/Icon.tsx";
 import { IconButton } from "@/components/primitives.tsx";
 import { lang, t } from "@/i18n";
-import { hubLabel } from "@/lib/endpoints.ts";
+import { endpointLabel } from "@/lib/endpoints.ts";
 import { formatTime } from "@/lib/fx.ts";
 import { TIER_ICONS, TIER_KEYS, tierName } from "@/lib/tiers.ts";
 import { createSession, selectSession } from "@/state/app.ts";
@@ -30,7 +30,12 @@ export function Sidebar() {
           <span class="count">{view === "sessions" ? sessions.length : ""}</span>
         </div>
         {view === "sessions" ? (
-          <IconButton icon="plus-cell" title={t("nav.new")} onClick={() => void createSession()} />
+          <IconButton
+            icon="plus-cell"
+            title={t("nav.new")}
+            dataAction="new-session"
+            onClick={() => void createSession()}
+          />
         ) : (
           <IconButton
             icon="sessions"
@@ -66,7 +71,7 @@ export function Sidebar() {
         </div>
         <div class="hubmeta">
           <i class="led led--live" />
-          <span class="mono">HUB · {hubLabel()}</span>
+          <span class="mono">HUB · {endpointLabel(store.endpoint.value)}</span>
           <span class="mono dim">{t(`conn.${store.connection.value}`)}</span>
         </div>
       </footer>

@@ -6,7 +6,7 @@ import { morphText } from "@/lib/fx.ts";
 import { agentNameForTier, modeName, TIER_ICONS, TIER_KEYS, tierShort } from "@/lib/tiers.ts";
 import type { PermissionMode } from "@/protocol";
 import { MODES, TIERS } from "@/protocol";
-import { setMode, setTier } from "@/state/app.ts";
+import { closeSession, setMode, setTier } from "@/state/app.ts";
 import { activeMeta, activeSession, store } from "@/state/store.ts";
 
 export function Topbar() {
@@ -124,6 +124,13 @@ export function Topbar() {
           icon="search"
           title={`${t("rail.palette")} ⌘K`}
           onClick={() => (store.overlay.value = "palette")}
+        />
+        <IconButton
+          icon="x"
+          title={t("topbar.closeSession")}
+          dataAction="close-session"
+          disabled={!meta}
+          onClick={() => void closeSession()}
         />
         <IconButton
           icon="panel"

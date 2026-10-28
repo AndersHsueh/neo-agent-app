@@ -1,4 +1,5 @@
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
+import { DiffView } from "@/components/DiffView.tsx";
 import { Icon } from "@/components/Icon.tsx";
 import { Prose } from "@/components/Prose.tsx";
 import { lang, lang as langSignal, t } from "@/i18n";
@@ -17,9 +18,39 @@ import type {
   TranscriptBlock,
   TurnBlock,
   UserBlock,
+  ViewBlock,
 } from "@/protocol";
-import { answerQuestion, resolveApproval } from "@/state/app.ts";
+import { answerQuestion, type CommandOutcomeView, resolveApproval } from "@/state/app.ts";
 import { store } from "@/state/store.ts";
+
+/** 块渲染的可选回调（由 app 侧接线；缺省时单选走内置 action） */
+export interface RenderBlockOptions {
+  streamingAssistantId?: string;
+  /**
+   * 多选题/自由输入的提交出口。
+   * TODO(接口): 等 app 侧把 question.answer 统一成 {key,keys,custom} 后由 Workbench 传入；
+   * 未接线时多选会走内置答案（单 key），自由输入提示未接线。
+   */
+  onAnswerKeys?: (blockId: string, keys: string[], custom?: string) => void;
+}
+
+/** 距离 deadlineAt 的剩余秒数；无 deadline 或已收口时返回 0 */
+function useCountdown(deadlineAt?: number, active = true): number {
+  const [left, setLeft] = useState<number>(() =>
+    deadlineAt && active ? Math.max(0, Math.round((deadlineAt - Date.now()) / 1000)) : 0,
+  );
+  useEffect(() => {
+    if (!deadlineAt || !active) {
+      setLeft(0);
+      return;
+    }
+    const tick = () => setLeft(Math.max(0, Math.round((deadlineAt - Date.now()) / 1000)));
+    tick();
+    const timer = setInterval(tick, 500);
+    return () => clearInterval(timer);
+  }, [deadlineAt, active]);
+  return left;
+}
 
 export function TurnDivider({ block }: { block: TurnBlock }) {
   const label =
@@ -61,6 +92,19 @@ export function UserMessage({ block }: { block: UserBlock }) {
                 <Icon name={ref.icon} class="icon icon--xs" />
                 {ref.label}
               </span>
+            ))}
+          </div>
+        ) : null}
+        {/* v0.0.2 协议不回传附件元数据：只有本轮本地发出的图片能预览 */}
+        {block.attachments?.length ? (
+          <div class="msg__images">
+            {block.attachments.map((attachment, index) => (
+              <img
+                class="chatimg"
+                src={attachment.dataUrl}
+                alt={`attachment ${index + 1}`}
+                key={`${block.id}-${index}`}
+              />
             ))}
           </div>
         ) : null}
@@ -148,7 +192,7 @@ export function ToolCard({ block }: { block: ToolBlock }) {
       >
         <button class="tool__head" type="button" onClick={() => setOpen((v) => !v)}>
           <span class="tool__icon">
-            <Icon name={block.icon} />
+            <Icon name={block.icon ?? "terminal"} />
           </span>
           <span class="tool__name">{block.name}</span>
           <span class="tool__arg">{block.arg}</span>
@@ -180,6 +224,8 @@ export function ToolCard({ block }: { block: ToolBlock }) {
 
 export function ApprovalCard({ block }: { block: ApprovalBlock }) {
   const done = block.state !== "pending";
+  const left = useCountdown(block.deadlineAt, !done);
+  const hasDiff = Boolean(block.diff);
   return (
     <div class="msg msg--tool">
       <div class={`approve${done ? " is-done" : ""}`}>
@@ -199,13 +245,22 @@ export function ApprovalCard({ block }: { block: ApprovalBlock }) {
               {done ? t("dialog.approve.doneDesc") : t("dialog.approve.desc")}
             </span>
             <span class="approve__path">
-              {block.tool} · {block.path}
+              {block.tool}
+              {block.path ? ` · ${block.path}` : null}
             </span>
             <span class="approve__risk">
               {done ? t("dialog.approve.doneRisk") : t("dialog.approve.risk")}
             </span>
           </span>
         </div>
+        {/* diff 可缺省（v1.1）：有 diff 就展开，没有则退回人类可读 detail */}
+        {block.diff ? (
+          <div class="approve__diff">
+            <DiffView diff={block.diff} maxHeight={200} />
+          </div>
+        ) : block.detail ? (
+          <pre class="approve__detail">{block.detail}</pre>
+        ) : null}
         {done ? null : (
           <div class="approve__actions">
             <button
@@ -213,8 +268,8 @@ export function ApprovalCard({ block }: { block: ApprovalBlock }) {
               type="button"
               onClick={() => (store.approvalView.value = block.id)}
             >
-              <Icon name="diff" class="icon icon--xs" />
-              {lang.value === "zh" ? "审阅差异" : "Review diff"}
+              <Icon name={hasDiff ? "diff" : "file"} class="icon icon--xs" />
+              {hasDiff ? t("approve.reviewDiff") : t("approve.reviewDetail")}
             </button>
             <button
               class="btn btn--primary"
@@ -232,7 +287,11 @@ export function ApprovalCard({ block }: { block: ApprovalBlock }) {
               <Icon name="x" class="icon icon--xs" />
               {t("dialog.approve.reject")}
             </button>
-            <span class="approve__hint">{t("dialog.approve.note")}</span>
+            <span class="approve__hint">
+              {block.deadlineAt
+                ? t("dialog.approve.timeout", { s: left })
+                : t("dialog.approve.note")}
+            </span>
           </div>
         )}
       </div>
@@ -240,35 +299,141 @@ export function ApprovalCard({ block }: { block: ApprovalBlock }) {
   );
 }
 
-export function QuestionCard({ block }: { block: QuestionBlock }) {
-  const answered = Boolean(block.answeredKey);
+export function QuestionCard({
+  block,
+  onAnswerKeys,
+}: {
+  block: QuestionBlock;
+  onAnswerKeys?: RenderBlockOptions["onAnswerKeys"];
+}) {
+  const multi = block.multiSelect === true;
+  const answeredKeys = block.answeredKeys ?? (block.answeredKey ? [block.answeredKey] : []);
+  const answered = answeredKeys.length > 0 || Boolean(block.custom);
+  const [picked, setPicked] = useState<string[]>([]);
+  const [custom, setCustom] = useState("");
+  const [busy, setBusy] = useState(false);
+  const left = useCountdown(block.deadlineAt, !answered);
+
+  const submit = async (keys: string[], customText?: string) => {
+    if (busy || answered) return;
+    setBusy(true);
+    try {
+      const text = customText?.trim();
+      if (onAnswerKeys) {
+        onAnswerKeys(block.id, keys, text);
+        return;
+      }
+      // 单选走兼容字段 key，多选/自由输入走 v1.1 的 keys/custom
+      await answerQuestion(block.id, {
+        key: !multi && keys.length === 1 ? keys[0] : undefined,
+        keys: multi || keys.length > 1 ? keys : undefined,
+        custom: text || undefined,
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggle = (key: string) => {
+    if (answered || busy) return;
+    if (!multi) {
+      void submit([key]);
+      return;
+    }
+    setPicked((current) =>
+      current.includes(key) ? current.filter((item) => item !== key) : [...current, key],
+    );
+  };
+
   return (
     <div class="msg msg--tool">
-      <div class={`ask${answered ? " is-answered" : ""}`}>
+      <div class={`ask${answered ? " is-answered" : ""}${multi ? " is-multi" : ""}`}>
         <div class="ask__head">
           <Icon name="peers" class="icon icon--sm" />
-          <span class="ask__q">{block.prompt}</span>
+          <span class="ask__q">
+            {block.header ? <span class="ask__header">{block.header}</span> : null}
+            <span class="ask__prompt">{block.prompt}</span>
+          </span>
           <span class="ask__hint">
-            {answered ? `✓ ${t("question.picked")}` : t("question.keys")}
+            {answered
+              ? `✓ ${t("question.picked")}`
+              : multi
+                ? t("question.multiHint")
+                : t("question.keys")}
           </span>
         </div>
+        {block.context ? <div class="ask__ctx">{block.context}</div> : null}
         <div class="ask__opts">
-          {block.options.map((option) => (
-            <button
-              key={option.key}
-              class={`ask__opt${answered && block.answeredKey === option.key ? " is-picked" : ""}`}
-              type="button"
-              disabled={answered}
-              onClick={() => void answerQuestion(block.id, option.key)}
-            >
-              <span class="ask__key">{option.key}</span>
-              <span class="ask__opt-main">
-                <span class="ask__opt-t">{option.label}</span>
-                {option.description ? <span class="ask__opt-d">{option.description}</span> : null}
-              </span>
-            </button>
-          ))}
+          {block.options.map((option) => {
+            const isPicked = answered
+              ? answeredKeys.includes(option.key)
+              : picked.includes(option.key);
+            return (
+              <button
+                key={option.key}
+                class={`ask__opt${isPicked ? " is-picked" : ""}`}
+                type="button"
+                disabled={answered || busy}
+                onClick={() => toggle(option.key)}
+              >
+                <span class="ask__key">{multi ? (isPicked ? "✓" : "·") : option.key}</span>
+                <span class="ask__opt-main">
+                  <span class="ask__opt-t">{option.label}</span>
+                  {option.description ? <span class="ask__opt-d">{option.description}</span> : null}
+                </span>
+              </button>
+            );
+          })}
         </div>
+        {block.allowCustom && answered && block.custom ? (
+          <div class="ask__custom-static">
+            <Icon name="edit" class="icon icon--xs" />
+            <span>{block.custom}</span>
+          </div>
+        ) : null}
+        {block.allowCustom && !answered ? (
+          <form
+            class="ask__customrow"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void submit(picked, custom);
+            }}
+          >
+            <input
+              class="ask__custom"
+              value={custom}
+              placeholder={t("question.customPlaceholder")}
+              onInput={(event) => setCustom((event.target as HTMLInputElement).value)}
+            />
+            <button
+              class="btn btn--ghost btn--sm"
+              type="submit"
+              disabled={busy || (!custom.trim() && picked.length === 0)}
+            >
+              <Icon name="send" class="icon icon--xs" />
+              {busy ? t("question.submitting") : t("question.send")}
+            </button>
+          </form>
+        ) : null}
+        {multi && !answered ? (
+          <div class="ask__submitrow">
+            <button
+              class="btn btn--primary btn--sm"
+              type="button"
+              disabled={busy || picked.length === 0}
+              onClick={() => void submit(picked)}
+            >
+              {busy ? t("question.submitting") : t("question.submit")}
+            </button>
+            <span class="ask__hint">{t("question.selected", { n: picked.length })}</span>
+          </div>
+        ) : null}
+        {block.deadlineAt && !answered ? (
+          <div class="ask__deadline">
+            <Icon name="clock" class="icon icon--xs" />
+            {t("question.deadline", { s: left })}
+          </div>
+        ) : null}
       </div>
     </div>
   );
@@ -287,8 +452,15 @@ export function TierLine({ block }: { block: TierLineBlock }) {
 }
 
 export function StatsRow({ block }: { block: StatsBlock }) {
+  const failed = Boolean(block.error);
+  const contextPct =
+    block.contextUsage !== undefined && block.contextUsage <= 1
+      ? `${Math.round(block.contextUsage * 100)}%`
+      : block.contextUsage !== undefined
+        ? formatTokens(block.contextUsage)
+        : null;
   return (
-    <div class="stats">
+    <div class={`stats${failed ? " is-error" : ""}`} title={block.turnId}>
       <span class="stat">
         <Icon name="clock" />
         <b>{(block.durationMs / 1000).toFixed(1)}s</b>
@@ -307,17 +479,36 @@ export function StatsRow({ block }: { block: StatsBlock }) {
       <span class="stat">
         <b>{formatCost(block.usage.costMicros)}</b>
       </span>
+      {contextPct ? (
+        <span class="stat" title={t("stats.ctx")}>
+          <Icon name="gauge" />
+          <b>{contextPct}</b> {t("stats.ctx")}
+        </span>
+      ) : null}
+      {block.finishReason ? (
+        <span class="stat">
+          {t("stats.finish")} <b>{block.finishReason}</b>
+        </span>
+      ) : null}
+      {block.error ? (
+        <span class="stat stat--error">
+          <Icon name="alert" />
+          <b>{block.error.code}</b>
+          <span class="stat__msg">{block.error.message}</span>
+        </span>
+      ) : null}
     </div>
   );
 }
 
 export function BannerRow({ block }: { block: BannerBlock | ErrorBlock }) {
-  const isError = block.kind === "error";
+  const level = block.kind === "error" ? "error" : block.level;
   return (
-    <div class={`banner${isError ? " banner--error" : ""}`}>
-      <Icon name="alert" />
-      <span>
-        {isError ? (
+    <div class={`banner banner--${level}`}>
+      <Icon name={level === "info" ? "spark" : "alert"} />
+      <span class="banner__tag">{t(`banner.${level}`)}</span>
+      <span class="banner__text">
+        {block.kind === "error" ? (
           <>
             {block.message} <span class="mono dim">({block.code})</span>
           </>
@@ -329,7 +520,213 @@ export function BannerRow({ block }: { block: BannerBlock | ErrorBlock }) {
   );
 }
 
-export function renderBlock(block: TranscriptBlock, opts: { streamingAssistantId?: string }) {
+/* ------------------------------------------------------------------ */
+/* 命令结果（command.result / command.run 回执）                        */
+/* ------------------------------------------------------------------ */
+
+/** markdown 的最小渲染：段落 / 列表 / ``` 代码块；行内走白名单 inlineMd */
+function MarkdownChunk({ text }: { text: string }) {
+  const blocks: preact.JSX.Element[] = [];
+  let paragraph: string[] = [];
+  let list: { ordered: boolean; items: string[] } | null = null;
+  let code: string[] | null = null;
+
+  const flushParagraph = () => {
+    if (paragraph.length === 0) return;
+    blocks.push(
+      <p key={blocks.length} dangerouslySetInnerHTML={{ __html: inlineMd(paragraph.join(" ")) }} />,
+    );
+    paragraph = [];
+  };
+  const flushList = () => {
+    if (!list) return;
+    const items = list.items.map((item, index) => (
+      <li key={index} dangerouslySetInnerHTML={{ __html: inlineMd(item) }} />
+    ));
+    blocks.push(
+      list.ordered ? <ol key={blocks.length}>{items}</ol> : <ul key={blocks.length}>{items}</ul>,
+    );
+    list = null;
+  };
+  const flushCode = () => {
+    if (!code) return;
+    blocks.push(
+      <pre key={blocks.length} class="cmdresult__pre">
+        {code.join("\n")}
+      </pre>,
+    );
+    code = null;
+  };
+
+  for (const raw of text.split("\n")) {
+    const line = raw.trimEnd();
+    if (line.trimStart().startsWith("```")) {
+      if (code) flushCode();
+      else {
+        flushParagraph();
+        flushList();
+        code = [];
+      }
+      continue;
+    }
+    if (code) {
+      code.push(raw);
+      continue;
+    }
+    const bullet = /^\s*[-*]\s+(.*)$/.exec(line);
+    const ordered = bullet ? null : /^\s*\d+[.)]\s+(.*)$/.exec(line);
+    const item = bullet?.[1] ?? ordered?.[1];
+    if (item !== undefined) {
+      flushParagraph();
+      const isOrdered = ordered !== null;
+      if (list && list.ordered !== isOrdered) flushList();
+      list = list ?? { ordered: isOrdered, items: [] };
+      list.items.push(item);
+      continue;
+    }
+    if (line.trim() === "") {
+      flushParagraph();
+      flushList();
+      continue;
+    }
+    flushList();
+    paragraph.push(line.trim());
+  }
+  flushParagraph();
+  flushList();
+  flushCode();
+
+  return <div class="prose cmdresult__md">{blocks}</div>;
+}
+
+/** ViewBlock 的七种形状：text / markdown / kv / list / table / diff / notice */
+export function ViewBlockContent({ view }: { view: ViewBlock }) {
+  switch (view.kind) {
+    case "text":
+      return <pre class="cmdresult__pre">{view.text}</pre>;
+    case "markdown":
+      return <MarkdownChunk text={view.text} />;
+    case "kv":
+      return (
+        <dl class="cmdresult__kv">
+          {view.items.map((item, index) => (
+            <div class="cmdresult__kvrow" key={`${item.k}-${index}`}>
+              <dt>{item.k}</dt>
+              <dd>{item.v}</dd>
+            </div>
+          ))}
+        </dl>
+      );
+    case "list": {
+      const List = view.ordered ? "ol" : "ul";
+      return (
+        <List class="cmdresult__list">
+          {view.items.map((item, index) => (
+            <li key={index}>{item}</li>
+          ))}
+        </List>
+      );
+    }
+    case "table":
+      return (
+        <div class="cmdresult__tablewrap">
+          <table class="cmdresult__table">
+            {view.head.length ? (
+              <thead>
+                <tr>
+                  {view.head.map((cell, index) => (
+                    <th key={index}>{cell}</th>
+                  ))}
+                </tr>
+              </thead>
+            ) : null}
+            <tbody>
+              {view.rows.map((row, rowIndex) => (
+                <tr key={rowIndex}>
+                  {row.map((cell, cellIndex) => (
+                    <td key={cellIndex}>{cell}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    case "diff":
+      return (
+        <div class="cmdresult__diff">
+          {view.file ? <div class="cmdresult__difffile">{view.file}</div> : null}
+          <DiffView diff={view.diff} maxHeight={260} />
+        </div>
+      );
+    case "notice":
+      return (
+        <div class={`cmdresult__notice cmdresult__notice--${view.level}`}>
+          <Icon name={view.level === "info" ? "spark" : "alert"} class="icon icon--xs" />
+          <span>{view.text}</span>
+        </div>
+      );
+    default:
+      return null;
+  }
+}
+
+export function CommandResultCard({
+  name,
+  args,
+  outcome,
+}: {
+  name: string;
+  args?: string[];
+  outcome: CommandOutcomeView;
+}) {
+  const blocks = outcome.blocks ?? [];
+  const hasNotice = blocks.some((block) => block.kind === "notice");
+  const changes = Object.entries(outcome.changes ?? {}).filter(
+    ([, value]) => value !== undefined && value !== null,
+  );
+  return (
+    <div class={`cmdresult${outcome.ok ? "" : " is-error"}`}>
+      <div class="cmdresult__head">
+        <Icon name="command-key" class="icon icon--xs" />
+        <span class="cmdresult__name">
+          /{name}
+          {args?.length ? ` ${args.join(" ")}` : null}
+        </span>
+        <span class="cmdresult__state">
+          {outcome.ok ? t("cmd.result.ok") : t("cmd.result.failed")}
+        </span>
+      </div>
+      <div class="cmdresult__body">
+        {blocks.map((view, index) => (
+          <ViewBlockContent key={index} view={view} />
+        ))}
+        {!outcome.ok && outcome.error && !hasNotice ? (
+          <div class="cmdresult__error">
+            <Icon name="alert" class="icon icon--xs" />
+            <span class="cmdresult__code">{outcome.error.code}</span>
+            <span>{outcome.error.message}</span>
+          </div>
+        ) : null}
+        {changes.length ? (
+          <div class="cmdresult__changes">
+            <span class="cmdresult__changeslabel">{t("cmd.result.changes")}</span>
+            {changes.map(([key, value]) => (
+              <span class="cmdresult__change" key={key}>
+                <b>{key}</b> {String(value)}
+              </span>
+            ))}
+          </div>
+        ) : null}
+        {blocks.length === 0 && !outcome.error ? (
+          <div class="cmdresult__empty">{t("cmd.result.empty")}</div>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+export function renderBlock(block: TranscriptBlock, opts: RenderBlockOptions = {}) {
   switch (block.kind) {
     case "turn":
       return <TurnDivider block={block} />;
@@ -344,7 +741,7 @@ export function renderBlock(block: TranscriptBlock, opts: { streamingAssistantId
     case "approval":
       return <ApprovalCard block={block} />;
     case "question":
-      return <QuestionCard block={block} />;
+      return <QuestionCard block={block} onAnswerKeys={opts.onAnswerKeys} />;
     case "tierline":
       return <TierLine block={block} />;
     case "stats":

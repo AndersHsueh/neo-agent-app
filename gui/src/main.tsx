@@ -8,6 +8,7 @@ import "./styles/boot.css";
 import "./styles/app.css";
 import { App } from "@/app/App.tsx";
 import { lang } from "@/i18n";
+import * as actions from "@/state/app.ts";
 import { store } from "@/state/store.ts";
 
 const storedMotion = localStorage.getItem("neo.motion");
@@ -19,7 +20,8 @@ document.documentElement.dataset.grain = "on";
 document.documentElement.lang = lang.value === "zh" ? "zh-Hans" : "en";
 
 if (import.meta.env.DEV) {
-  (window as unknown as { __neo: unknown }).__neo = { store, lang };
+  // 联调/测试钩子：只读 store + 控制器动作（e2e 用它验证没有 UI 入口的协议能力）
+  (window as unknown as { __neo: unknown }).__neo = { store, lang, actions };
 }
 
 const root = document.getElementById("root");

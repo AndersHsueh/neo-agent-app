@@ -80,6 +80,8 @@ export function Workbench() {
       if (/^[1-9]$/.test(event.key) && !mod && !event.altKey) {
         const question = pendingQuestion.value;
         const target = (event.target as HTMLElement | null)?.tagName;
+        // 多选提问有「勾选 → 提交」语义，数字键不能直接收口；交给卡片自己的提交按钮。
+        if (question?.multiSelect) return;
         if (question && target !== "INPUT" && target !== "TEXTAREA") {
           const option = question.options[Number(event.key) - 1];
           if (option) {

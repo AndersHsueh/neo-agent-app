@@ -1699,3 +1699,572 @@
 .panelrow .tag {
   flex: 0 0 auto;
 }
+
+/* =========================================================================
+   v1.2 渲染层增量（只追加；不改上文既有规则）
+   ========================================================================= */
+
+/* ---- banner：按 level 分色（info / warn / error） ---------------------- */
+.banner__tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 2px 5px;
+  border-radius: var(--r-1);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--ink-3);
+  flex: 0 0 auto;
+}
+
+.banner__text {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.55;
+}
+
+.banner--info {
+  background: var(--info-wash);
+  box-shadow: inset 0 0 0 1px rgba(53, 201, 255, 0.24);
+}
+
+.banner--info svg.icon,
+.banner--info .banner__tag {
+  color: var(--info);
+}
+
+.banner--warn {
+  background: var(--warn-wash);
+  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.24);
+}
+
+.banner--warn svg.icon,
+.banner--warn .banner__tag {
+  color: var(--warn);
+}
+
+.banner--error {
+  background: var(--danger-wash);
+  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.26);
+}
+
+.banner--error svg.icon,
+.banner--error .banner__tag {
+  color: var(--danger);
+}
+
+/* ---- stats：v1.2 收口字段（contextUsage / finishReason / error） ------- */
+.stats.is-error {
+  color: var(--danger);
+}
+
+.stat--error {
+  color: var(--danger);
+}
+
+.stat--error b {
+  color: var(--danger);
+}
+
+.stat__msg {
+  font-family: var(--font-sans);
+  font-size: var(--fs-2xs);
+  color: var(--ink-4);
+}
+
+/* ---- 审批：diff 可缺省 → 退回 detail / 无详情的兜底 ------------------- */
+.approve__diff .diff {
+  border-top: 0;
+  max-height: 200px;
+}
+
+.approve__detail {
+  margin: 0;
+  padding: 9px 14px;
+  border-top: 1px solid var(--line-0);
+  background: #050908;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.7;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow: auto;
+}
+
+.approve__detailblock {
+  margin-bottom: 10px;
+  border-radius: var(--r-3);
+  box-shadow: inset 0 0 0 1px var(--line-0);
+  overflow: hidden;
+}
+
+.approve__detailhead {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line-0);
+  background: rgba(17, 27, 23, 0.42);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.approve__detailblock .approve__detail {
+  border-top: 0;
+  max-height: 220px;
+}
+
+.approve__nopatch {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 12px;
+  border-radius: var(--r-3);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line-0);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--ink-4);
+}
+
+.dialog__hint {
+  font-size: 13px;
+  color: var(--ink-2);
+  margin-bottom: 11px;
+}
+
+/* ---- 提问：header / context / 多选 / 自由输入 / 倒计时 ----------------- */
+.ask__header {
+  display: block;
+  margin-bottom: 3px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.ask__prompt {
+  display: block;
+}
+
+.ask__ctx {
+  margin: 0 0 9px;
+  padding: 8px 10px;
+  border-radius: var(--r-2);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--line-0);
+  font-size: var(--fs-2xs);
+  line-height: 1.6;
+  color: var(--ink-3);
+  white-space: pre-wrap;
+}
+
+.ask__customrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.ask__custom {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--r-2);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--line-1);
+  color: var(--ink-1);
+  font-size: var(--fs-sm);
+  outline: none;
+}
+
+.ask__custom:focus {
+  box-shadow:
+    inset 0 0 0 1px var(--accent-line),
+    var(--glow-focus);
+}
+
+.ask__custom::placeholder {
+  color: var(--ink-4);
+}
+
+.ask__custom-static {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 9px;
+  padding: 7px 10px;
+  border-radius: var(--r-2);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  color: var(--ink-1);
+  font-size: var(--fs-sm);
+}
+
+.ask__submitrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 9px;
+}
+
+.ask__deadline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 9px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-4);
+}
+
+/* ---- 命令面板：结果区 + 命令项描述 ------------------------------------ */
+.palette__result {
+  border-top: 1px solid var(--line-0);
+  background: rgba(5, 8, 7, 0.5);
+  max-height: min(34vh, 300px);
+  overflow-y: auto;
+  padding: 8px;
+}
+
+/* 有命令结果时给列表让位，避免面板高过视口 */
+.palette.has-result .palette__list {
+  max-height: min(40vh, 340px);
+}
+
+.palette__cmddesc {
+  max-width: 46%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- 命令结果块（command.run 回执 / command.result） ------------------ */
+.cmdresult {
+  border-radius: var(--r-3);
+  background: var(--surface-1);
+  box-shadow: inset 0 0 0 1px var(--line-1);
+  overflow: hidden;
+  animation: rise-in var(--d2) var(--ease-out) both;
+}
+
+.cmdresult.is-error {
+  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.3);
+}
+
+.cmdresult__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 11px;
+  border-bottom: 1px solid var(--line-0);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.cmdresult__name {
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cmdresult__state {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ok);
+}
+
+.cmdresult.is-error .cmdresult__state {
+  color: var(--danger);
+}
+
+.cmdresult.is-pending .cmdresult__state {
+  color: var(--ink-4);
+}
+
+.cmdresult__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 9px 11px;
+}
+
+.cmdresult__pre {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cmdresult__md p {
+  margin: 0 0 6px;
+}
+
+.cmdresult__md p:last-child {
+  margin-bottom: 0;
+}
+
+.cmdresult__kv {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cmdresult__kvrow {
+  display: flex;
+  gap: 10px;
+  font-size: var(--fs-2xs);
+}
+
+.cmdresult__kvrow dt {
+  flex: 0 0 108px;
+  color: var(--ink-4);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.cmdresult__kvrow dd {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  color: var(--ink-2);
+  word-break: break-word;
+}
+
+.cmdresult__list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: var(--fs-2xs);
+  line-height: 1.65;
+  color: var(--ink-2);
+}
+
+.cmdresult__list li::marker {
+  color: var(--accent-dim);
+}
+
+.cmdresult__tablewrap {
+  overflow-x: auto;
+}
+
+.cmdresult__table {
+  border-collapse: collapse;
+  width: 100%;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+}
+
+.cmdresult__table th {
+  padding: 4px 8px;
+  text-align: left;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--ink-3);
+  border-bottom: 1px solid var(--line-2);
+}
+
+.cmdresult__table td {
+  padding: 4px 8px;
+  vertical-align: top;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line-0);
+}
+
+.cmdresult__table tr:last-child td {
+  border-bottom: 0;
+}
+
+.cmdresult__diff .diff {
+  border-top: 0;
+  border-radius: var(--r-2);
+  max-height: 260px;
+}
+
+.cmdresult__difffile {
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.cmdresult__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 7px 9px;
+  border-radius: var(--r-2);
+  font-size: var(--fs-2xs);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.cmdresult__notice--info {
+  background: var(--info-wash);
+}
+
+.cmdresult__notice--info svg.icon {
+  color: var(--info);
+}
+
+.cmdresult__notice--warn {
+  background: var(--warn-wash);
+}
+
+.cmdresult__notice--warn svg.icon {
+  color: var(--warn);
+}
+
+.cmdresult__notice--error {
+  background: var(--danger-wash);
+}
+
+.cmdresult__notice--error svg.icon {
+  color: var(--danger);
+}
+
+.cmdresult__error {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--danger);
+}
+
+.cmdresult__code {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cmdresult__changes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding-top: 2px;
+}
+
+.cmdresult__changeslabel {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: var(--ink-5);
+}
+
+.cmdresult__change {
+  padding: 2px 7px;
+  border-radius: var(--r-pill);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-2);
+}
+
+.cmdresult__change b {
+  font-weight: 500;
+  color: var(--accent);
+}
+
+.cmdresult__empty {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-4);
+}
+
+.cmdresult__head svg.icon {
+  color: var(--accent);
+}
+
+.cmdresult.is-error .cmdresult__head svg.icon {
+  color: var(--danger);
+}
+
+/* ---- 附件图片：composer 预览 + 对话内本地预览 ------------------------- */
+/* composer 预览用 [data-role="attach-preview"] 收窄作用域，
+   避免覆盖用户消息里引用 chip 的 .attach 样式 */
+.attachrow[data-role="attach-preview"] {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 0;
+}
+
+.attachrow[data-role="attach-preview"] .attach {
+  position: relative;
+  display: block;
+  width: 56px;
+  height: 56px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--r-2);
+  background: var(--surface-2);
+  box-shadow: inset 0 0 0 1px var(--line-1);
+}
+
+.attach__thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.attach__remove {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  background: rgba(5, 8, 7, 0.82);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+  color: var(--ink-2);
+  transition:
+    color var(--d1) var(--ease-out),
+    background-color var(--d1) var(--ease-out);
+}
+
+.attach__remove:hover {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.attachrow__count {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-4);
+}
+
+.msg__images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.chatimg {
+  display: block;
+  max-width: 320px;
+  max-height: 240px;
+  border-radius: var(--r-3);
+  border: 1px solid var(--line-1);
+  object-fit: cover;
+  background: var(--surface-2);
+}

@@ -1,32 +1,20 @@
-/** 登录页：本地账号（dummy）+ 为将来 OIDC 留的接口形状。 */
-import { useState } from "preact/hooks";
+/**
+ * 离线兜底页：Hub 未发现/已断开时显示。
+ *
+ * v0.0.2 是本地 Hub（`matrix-core hub --dev-auth`），没有用户名密码：
+ * 客户端读发现文件拿 token 直连。这里只负责「为什么没连上 + 重试」。
+ */
 import { Icon } from "@/components/Icon.tsx";
 import { t } from "@/i18n";
-import { login } from "@/state/app.ts";
-
-const DEMO = [
-  { email: "neo@local", label: "Neo · owner" },
-  { email: "tom@local", label: "Tom · member" },
-  { email: "jacky@local", label: "Jacky · member" },
-];
+import { retryDiscovery } from "@/state/app.ts";
+import { store } from "@/state/store.ts";
 
 export function LoginView() {
-  const [email, setEmail] = useState("neo@local");
-  const [password, setPassword] = useState("neo");
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const submit = async (event: Event) => {
-    event.preventDefault();
-    setBusy(true);
-    setError(null);
-    const ok = await login(email.trim(), password);
-    setBusy(false);
-    if (!ok) setError(t("login.error"));
-  };
+  const booting = store.boot.value === "booting";
+  const reason = store.bootError.value;
 
   return (
-    <div class="login">
+    <div class="login" data-role="hub-offline">
       <div class="login__card">
         <div class="login__brand">
           <div class="login__mark">
@@ -36,70 +24,33 @@ export function LoginView() {
           </div>
           <div>
             <div class="login__name">{t("login.title")}</div>
-            <div class="login__sub">{t("login.subtitle")}</div>
+            <div class="login__sub">{booting ? t("login.discovering") : t("login.hubOffline")}</div>
           </div>
         </div>
 
-        <form class="login__form" onSubmit={submit}>
-          <label class="field">
-            <span class="field__label">
-              <span class="field__main">{t("login.email")}</span>
-              <code>email</code>
-            </span>
-            <input
-              class="input"
-              type="text"
-              autocomplete="username"
-              value={email}
-              onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
-            />
-          </label>
-          <label class="field">
-            <span class="field__label">
-              <span class="field__main">{t("login.password")}</span>
-              <code>password</code>
-            </span>
-            <input
-              class="input"
-              type="password"
-              autocomplete="current-password"
-              value={password}
-              onInput={(e) => setPassword((e.target as HTMLInputElement).value)}
-            />
-          </label>
-
-          {error ? (
-            <div class="login__error" role="alert">
-              <Icon name="alert" class="icon icon--xs" />
-              {error}
-            </div>
-          ) : null}
-
-          <button class="btn btn--primary login__submit" type="submit" disabled={busy}>
-            {busy ? t("login.submitting") : t("login.submit")}
+        <div class="login__form">
+          <p class="panelhint" style="margin:0 0 14px">
+            {reason ? <code data-role="hub-error">{reason}</code> : null}
+          </p>
+          <p class="panelhint" style="margin:0 0 18px">
+            {t("login.hubOfflineHint")}
+          </p>
+          <button
+            class="btn btn--primary login__submit"
+            type="button"
+            data-action="retry-discovery"
+            disabled={booting}
+            onClick={() => retryDiscovery()}
+          >
+            {booting ? t("login.discovering") : t("login.retry")}
           </button>
-        </form>
-
-        <div class="login__demo">
-          <span class="eyebrow">{t("login.demo")}</span>
-          {DEMO.map((account) => (
-            <button
-              key={account.email}
-              class="chip"
-              type="button"
-              onClick={() => {
-                setEmail(account.email);
-                setPassword(account.email.split("@")[0] ?? "");
-              }}
-            >
-              {account.label}
-            </button>
-          ))}
         </div>
 
         <div class="login__foot">
-          <Icon name="shield" class="icon icon--xs" />
-          <span>{t("login.hint")}</span>
+          <Icon name="plug" class="icon icon--xs" />
+          <span class="mono">
+            {t("login.detected")} · /__neo/endpoint · {store.endpoint.value?.url ?? "—"}
+          </span>
         </div>
       </div>
     </div>

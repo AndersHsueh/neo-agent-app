@@ -4,14 +4,18 @@ import { Toasts } from "@/components/Toasts.tsx";
 import { Boot } from "@/features/boot/Boot.tsx";
 import { LoginView } from "@/features/login/LoginView.tsx";
 import { Workbench } from "@/features/workbench/Workbench.tsx";
-import { restoreSession } from "@/state/app.ts";
+import { bootstrap } from "@/state/app.ts";
 import { pushToast, store } from "@/state/store.ts";
 
 const GALLERY = new URLSearchParams(location.search).has("gallery");
 
 export function App() {
   const [booted, setBooted] = useState(GALLERY);
-  const [restored] = useState(() => restoreSession());
+
+  // 启动链与开机动画并行：动画只是仪式，不阻塞 Hub 发现。
+  useEffect(() => {
+    bootstrap();
+  }, []);
 
   useEffect(() => {
     const onToast = (event: Event) => {
@@ -32,20 +36,22 @@ export function App() {
     );
   }
 
+  // 发现成功（有 endpoint）就算"连上过"，WS 抖动交给 Workbench 的 connbar 呈现；
+  // 只有发现失败（boot=offline）才回登录页兜底。
+  const connected =
+    store.user.value !== null && store.boot.value !== "offline" && store.endpoint.value !== null;
+
   return (
     <>
       <Sprite />
-      {booted ? (
-        store.user.value ? (
-          <Workbench />
-        ) : (
-          <LoginView />
-        )
-      ) : (
+      {!booted ? (
         <Boot onDone={() => setBooted(true)} />
+      ) : connected ? (
+        <Workbench />
+      ) : (
+        <LoginView />
       )}
       <Toasts />
-      {restored ? null : null}
     </>
   );
 }

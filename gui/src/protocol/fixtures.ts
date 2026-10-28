@@ -56,6 +56,7 @@ export const FIXTURE_META: SessionMeta = {
   createdAt: 1_793_100_000_000,
   updatedAt: 1_793_100_120_000,
   unread: 0,
+  mode: "ask",
 };
 
 /** 覆盖每一种事件的样本：guard 测试逐条过 */
@@ -101,7 +102,7 @@ export const EVENT_FIXTURES: SessionEvent[] = [
     prompt: "用哪条路修？",
     options: [{ key: "1", label: "入口归一化" }],
   },
-  { type: "question.resolve", blockId: "b-q-1", key: "1" },
+  { type: "question.resolve", blockId: "b-q-1", at: 1_793_100_124_500, key: "1" },
   {
     type: "tier.switch",
     from: "balanced",
@@ -127,13 +128,41 @@ export const EVENT_FIXTURES: SessionEvent[] = [
     type: "peer.update",
     peers: [{ name: "tom", status: "working", activity: "PD-1", age: "12s" }],
   },
-  { type: "error", code: "internal", message: "boom", retryable: true },
+  {
+    type: "error",
+    blockId: "b-e-1",
+    at: 1_793_100_128_000,
+    code: "internal",
+    message: "boom",
+    retryable: true,
+  },
   { type: "auth.expired" },
+  {
+    type: "turn.aborted",
+    turnId: "t-4",
+    blockId: "b-turn-4",
+    at: 1_793_100_129_000,
+    reason: "user",
+  },
+  { type: "compact.start", blockId: "b-c-1", at: 1_793_100_130_000, beforeTokens: 400_000 },
+  { type: "compact.end", blockId: "b-c-1", at: 1_793_100_131_000, afterTokens: 120_000 },
+  { type: "session.cleared", at: 1_793_100_132_000 },
+  {
+    type: "command.result",
+    blockId: "b-cmd-1",
+    name: "tier",
+    ok: true,
+    blocks: [{ kind: "text", text: "tier: deep_reasoning" }],
+    changes: { tier: "deep_reasoning" },
+  },
+  { type: "activity", phase: "llm", since: 1_793_100_133_000 },
+  { type: "notice", level: "info", text: "已连接" },
 ];
 
 export const SNAPSHOT_FIXTURE: SessionSnapshot = {
   meta: FIXTURE_META,
   seq: 7,
+  epoch: "ep-0704",
   blocks: [
     { kind: "turn", id: "b-turn-2", at: 1_793_100_000_000, n: 2 },
     { kind: "user", id: "b-u-1", at: 1_793_100_000_500, text: "先定位，别急着改。" },
@@ -260,7 +289,6 @@ export const INVALID_FIXTURES: unknown[] = [
   null,
   {},
   { v: 2, kind: "ready", user: {} },
-  { v: 1, kind: "event", sessionId: "s", seq: 1, event: { type: "nope" } },
   { v: 1, kind: "event", sessionId: "s", event: { type: "turn.start" } },
   { v: 1, kind: "event", seq: 1, event: { type: "turn.start", blockId: "b", at: 1 } },
   { v: 1, kind: "result", id: "r", ok: "yes" },

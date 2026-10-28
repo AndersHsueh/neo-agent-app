@@ -44,6 +44,7 @@ export function IconButton({
   active = false,
   class: className = "",
   disabled,
+  dataAction,
 }: {
   icon: string;
   title: string;
@@ -51,6 +52,8 @@ export function IconButton({
   active?: boolean;
   class?: string;
   disabled?: boolean;
+  /** 稳定测试钩子（e2e 用，不参与样式） */
+  dataAction?: string;
 }) {
   return (
     <button
@@ -58,6 +61,7 @@ export function IconButton({
       class={`iconbtn${active ? " is-on" : ""} ${className}`.trim()}
       title={title}
       aria-label={title}
+      data-action={dataAction}
       onClick={onClick}
       disabled={disabled}
     >

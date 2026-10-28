@@ -1,18 +1,27 @@
 import { useEffect, useMemo, useRef, useState } from "preact/hooks";
 import { Icon } from "@/components/Icon.tsx";
 import { Modal } from "@/components/Modal.tsx";
+import { CommandResultCard } from "@/features/transcript/Blocks.tsx";
 import { lang, t } from "@/i18n";
-import { COMMANDS } from "@/lib/commands.ts";
-import { modeName, TIER_ICONS, tierName } from "@/lib/tiers.ts";
-import { MODES, TIERS } from "@/protocol";
 import {
+  argsDetail,
+  COMMAND_GROUP_ICONS,
+  COMMAND_GROUP_KEYS,
+  COMMANDS,
+  commandDescription,
+  findCommand,
+  missingRequiredArgs,
+  parseSlashQuery,
+  usageLine,
+} from "@/lib/commands.ts";
+import type { CommandCatalogEntry } from "@/protocol";
+import {
+  type CommandOutcomeView,
   changeLang,
   createSession,
   logout,
   runCommand,
   selectSession,
-  setMode,
-  setTier,
 } from "@/state/app.ts";
 import { store } from "@/state/store.ts";
 
@@ -21,18 +30,92 @@ interface Item {
   label: string;
   sub?: string;
   icon: string;
+  /** 悬停时的完整说明（参数枚举值等） */
+  detail?: string;
+  /** 目录里的命令项：执行时保留面板并展示结果 */
+  command?: CommandCatalogEntry;
+  /** 未知命令项：同样保留面板，让回执可见 */
+  keepOpen?: boolean;
   run: () => void;
+}
+
+interface CommandRunResult {
+  name: string;
+  args: string[];
+  outcome: CommandOutcomeView;
 }
 
 export function Palette() {
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
+  const [pending, setPending] = useState<{ name: string; args: string[] } | null>(null);
+  const [result, setResult] = useState<CommandRunResult | null>(null);
   const input = useRef<HTMLInputElement>(null);
   const close = () => (store.overlay.value = null);
 
+  // 语言/会话列表是信号：在渲染期读取，切换语言时面板即时重排
+  const language = lang.value;
+  const sessions = store.sessions.value;
+  const groupCommands = t("palette.group.commands");
+
+  /** 执行目录命令：不关闭面板，把结构化结果渲染在面板底部 */
+  const runCatalog = async (entry: CommandCatalogEntry, args: string[]) => {
+    const missing = missingRequiredArgs(entry);
+    if (missing.length > 0 && args.length < missing.length) {
+      setResult({
+        name: entry.name,
+        args,
+        outcome: {
+          ok: false,
+          blocks: [
+            {
+              kind: "notice",
+              level: "warn",
+              text: t("cmd.result.missingArgs", {
+                args: missing.map((name) => `<${name}>`).join(" "),
+              }),
+            },
+          ],
+          error: { code: "protocol", message: "" },
+        },
+      });
+      return;
+    }
+    setPending({ name: entry.name, args });
+    setResult(null);
+    const outcome = await runCommand(entry.name, args);
+    setPending(null);
+    setResult({
+      name: entry.name,
+      args,
+      outcome: outcome ?? {
+        ok: false,
+        blocks: [{ kind: "notice", level: "error", text: t("cmd.result.noHub") }],
+        error: { code: "internal", message: "" },
+      },
+    });
+  };
+
+  /** 输入了未知的 /command：照样提交给 hub，让它回显 unsupported */
+  const runUnknown = async (name: string, args: string[]) => {
+    setPending({ name, args });
+    setResult(null);
+    const outcome = await runCommand(name, args);
+    setPending(null);
+    setResult({
+      name,
+      args,
+      outcome: outcome ?? {
+        ok: false,
+        blocks: [{ kind: "notice", level: "error", text: t("cmd.result.noHub") }],
+        error: { code: "internal", message: "" },
+      },
+    });
+  };
+
   const items = useMemo<Item[]>(() => {
     const list: Item[] = [];
-    for (const session of store.sessions.value) {
+    for (const session of sessions) {
       list.push({
         group: t("palette.group.recent"),
         label: session.title,
@@ -80,54 +163,57 @@ export function Palette() {
         group: t("palette.group.actions"),
         label: t("login.logout"),
         icon: "x",
-        run: () => void logout(),
+        run: () => logout(),
       },
     );
-    for (const tier of TIERS) {
+    // 斜杠命令：唯一真源是 protocol/commands.json，这里只做分组与本地化文案
+    for (const entry of COMMANDS) {
+      const parsed = parseSlashQuery(query);
+      const args =
+        parsed && (parsed.name === entry.name || entry.aliases.includes(parsed.name))
+          ? parsed.args
+          : [];
       list.push({
-        group: t("palette.group.tier"),
-        label: `/${tier === "deep_reasoning" ? "deep" : tier}`,
-        sub: tierName(tier),
-        icon: TIER_ICONS[tier],
-        run: () => void setTier(tier),
-      });
-    }
-    for (const mode of MODES) {
-      list.push({
-        group: t("palette.group.mode"),
-        label: modeName(mode),
-        sub: t(`mode.${mode}.desc`),
-        icon: "shield",
-        run: () => setMode(mode),
-      });
-    }
-    for (const command of COMMANDS) {
-      list.push({
-        group: lang.value === "zh" ? "斜杠命令" : "SLASH COMMANDS",
-        label: `/${command.name}`,
-        sub: command.description[lang.value],
-        icon: "command-key",
-        run: () => {
-          if (["deep", "balanced", "fast", "default"].includes(command.name)) {
-            void runCommand(command.name);
-          } else if (command.name === "tier") {
-            void runCommand("tier", ["balanced"]);
-          } else {
-            void runCommand(command.name);
-          }
-        },
+        group: t(COMMAND_GROUP_KEYS[entry.group]),
+        label: usageLine(entry),
+        sub: commandDescription(entry, language),
+        detail: argsDetail(entry) || undefined,
+        icon: COMMAND_GROUP_ICONS[entry.group],
+        command: entry,
+        run: () => void runCatalog(entry, args),
       });
     }
     return list;
-  }, []);
+    // runCatalog/runUnknown 只依赖 setState 与 store 动作，是稳定闭包，不需要进依赖
+  }, [query, language, sessions, groupCommands]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return items;
-    return items.filter((item) =>
+    const parsed = parseSlashQuery(query);
+    const exact = parsed ? findCommand(parsed.name) : undefined;
+    if (exact) {
+      // `/tier fast`：只留 /tier，Enter 时把 fast 作为参数发出去
+      const target = items.find((item) => item.command?.name === exact.name);
+      if (target) return [target];
+    }
+    const matched = items.filter((item) =>
       `${item.group} ${item.label} ${item.sub ?? ""}`.toLowerCase().includes(q),
     );
-  }, [items, query]);
+    if (matched.length === 0 && parsed) {
+      return [
+        {
+          group: groupCommands,
+          label: `/${parsed.name}`,
+          sub: t("palette.unknownCmd"),
+          icon: "alert",
+          keepOpen: true,
+          run: () => void runUnknown(parsed.name, parsed.args),
+        } satisfies Item,
+      ];
+    }
+    return matched;
+  }, [items, query, groupCommands]);
 
   useEffect(() => setCursor(0), [query]);
   useEffect(() => {
@@ -139,7 +225,7 @@ export function Palette() {
   const run = (index: number) => {
     const item = filtered[index];
     if (!item) return;
-    close();
+    if (!item.command && !item.keepOpen) close();
     item.run();
   };
 
@@ -152,7 +238,12 @@ export function Palette() {
 
   return (
     <Modal onClose={close} class="layer--top" initialFocus="#palette-input">
-      <div class="palette" role="dialog" aria-modal="true" aria-label={t("rail.palette")}>
+      <div
+        class={`palette${pending || result ? " has-result" : ""}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("rail.palette")}
+      >
         <div class="palette__top">
           <Icon name="search" />
           <input
@@ -189,18 +280,41 @@ export function Palette() {
                     key={`${group.group}-${item.label}`}
                     type="button"
                     class={`palette__item${index === cursor ? " is-active" : ""}`}
+                    title={item.detail}
                     onMouseMove={() => setCursor(index)}
                     onClick={() => run(index)}
                   >
                     <Icon name={item.icon} />
                     <span class="palette__label">{item.label}</span>
-                    {item.sub ? <span class="palette__sub">{item.sub}</span> : null}
+                    {item.sub ? (
+                      <span class={`palette__sub${item.command ? " palette__cmddesc" : ""}`}>
+                        {item.sub}
+                      </span>
+                    ) : null}
                   </button>
                 ))}
               </div>
             ))
           )}
         </div>
+        {pending || result ? (
+          <div class="palette__result">
+            {pending ? (
+              <div class="cmdresult is-pending">
+                <div class="cmdresult__head">
+                  <Icon name="command-key" class="icon icon--xs" />
+                  <span class="cmdresult__name">
+                    /{pending.name}
+                    {pending.args.length ? ` ${pending.args.join(" ")}` : ""}
+                  </span>
+                  <span class="cmdresult__state">{t("cmd.result.running")}</span>
+                </div>
+              </div>
+            ) : result ? (
+              <CommandResultCard name={result.name} args={result.args} outcome={result.outcome} />
+            ) : null}
+          </div>
+        ) : null}
         <div class="palette__foot">
           <span>
             <kbd class="kbd">↑↓</kbd>

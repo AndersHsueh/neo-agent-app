@@ -6,6 +6,7 @@
  */
 
 import { computed, signal } from "@preact/signals";
+import type { Endpoint } from "@/lib/endpoints.ts";
 import type {
   PermissionMode,
   SessionMeta,
@@ -16,6 +17,14 @@ import type {
   User,
 } from "@/protocol";
 import type { ConnStatus } from "@/transport/hub";
+
+/**
+ * 启动阶段：
+ *  - booting：还没做发现；
+ *  - connecting：发现成功（有 endpoint/user），WS 还在握手/退避重连 → 显示工作台 + 离线条；
+ *  - ready：ready 帧已到；offline：发现失败（显示登录页兜底与重试）。
+ */
+export type BootState = "booting" | "connecting" | "ready" | "offline";
 
 export type SidebarView = "sessions" | "peers" | "memory" | "wiki" | "skills";
 export type Overlay = null | "palette" | "settings" | "shortcuts" | "about";
@@ -44,6 +53,16 @@ export interface UsageSummary {
 export const store = {
   user: signal<User | null>(null),
   token: signal<string | null>(null),
+  /** 当前发现的 Hub 端点（每次（重）连都会刷新） */
+  endpoint: signal<Endpoint | null>(null),
+  /** ready 广告的能力位；UI 按能力降级（sessions / attachments.image / transcript.replay ...） */
+  capabilities: signal<string[]>([]),
+  versions: signal<{ core: string | null; protocol: string | null }>({
+    core: null,
+    protocol: null,
+  }),
+  boot: signal<BootState>("booting"),
+  bootError: signal<string | null>(null),
   connection: signal<ConnStatus>("idle"),
   sessions: signal<SessionMeta[]>([]),
   activeId: signal<string | null>(null),

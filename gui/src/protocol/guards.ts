@@ -50,6 +50,14 @@ const EVENT_TYPES = new Set<SessionEvent["type"]>([
   "peer.update",
   "error",
   "auth.expired",
+  "turn.aborted",
+  "compact.start",
+  "compact.end",
+  "command.progress",
+  "command.result",
+  "session.cleared",
+  "activity",
+  "notice",
 ]);
 
 const COMMAND_TYPES = new Set<ClientCommand["type"]>([
@@ -69,6 +77,8 @@ const COMMAND_TYPES = new Set<ClientCommand["type"]>([
   "command.run",
   "settings.get",
   "settings.patch",
+  "mode.set",
+  "transcript.fetch",
   "usage.summary",
   "ping",
 ]);
@@ -77,8 +87,10 @@ const COMMAND_TYPES = new Set<ClientCommand["type"]>([
 function decodeEvent(raw: unknown): DecodeResult<SessionEvent> {
   if (!isRec(raw)) return fail("event: not an object");
   const type = raw.type;
-  if (typeof type !== "string" || !EVENT_TYPES.has(type as SessionEvent["type"])) {
-    return fail(`event: unknown type ${String(type)}`);
+  if (typeof type !== "string") return fail("event: missing type");
+  // v1.1：未知事件类型必须放行（客户端能力降级），由 reducer/UI 忽略。
+  if (!EVENT_TYPES.has(type as SessionEvent["type"])) {
+    return { ok: true, value: raw as unknown as SessionEvent };
   }
   const need = (key: string): DecodeResult<unknown> =>
     key in raw ? { ok: true, value: raw[key] } : fail(`event ${type}: missing ${key}`);
@@ -107,11 +119,33 @@ function decodeEvent(raw: unknown): DecodeResult<SessionEvent> {
     case "reasoning.delta":
     case "tool.end":
     case "approval.resolve":
-    case "question.resolve":
     case "assistant.end":
     case "reasoning.end": {
       const r = need("blockId");
       if (!r.ok) return r;
+      break;
+    }
+    case "question.resolve": {
+      for (const key of ["blockId", "at"]) {
+        const r = need(key);
+        if (!r.ok) return r;
+      }
+      break;
+    }
+    case "turn.aborted":
+    case "command.progress":
+    case "session.cleared":
+    case "activity":
+    case "notice":
+    case "compact.start":
+    case "compact.end": {
+      break;
+    }
+    case "command.result": {
+      for (const key of ["blockId", "name", "ok"]) {
+        const r = need(key);
+        if (!r.ok) return r;
+      }
       break;
     }
     case "session.meta":
@@ -122,7 +156,7 @@ function decodeEvent(raw: unknown): DecodeResult<SessionEvent> {
       break;
     }
     case "error": {
-      for (const key of ["code", "message", "retryable"]) {
+      for (const key of ["blockId", "at", "code", "message", "retryable"]) {
         const r = need(key);
         if (!r.ok) return r;
       }
@@ -168,7 +202,7 @@ export function decodeServerMessage(raw: unknown): DecodeResult<ServerMessage> {
       if (!isStr(raw.sessionId)) return fail("snapshot: missing sessionId");
       if (!isNum(raw.seq)) return fail("snapshot: missing seq");
       const snap = raw.snapshot;
-      if (!isRec(snap) || !isRec(snap.meta) || !isArr(snap.blocks)) {
+      if (!isRec(snap) || !isRec(snap.meta) || !isArr(snap.blocks) || !isStr(snap.epoch)) {
         return fail("snapshot: bad payload");
       }
       return { ok: true, value: raw as unknown as ServerMessage };
@@ -208,6 +242,13 @@ export function decodeClientMessage(raw: unknown): DecodeResult<ClientCommand> {
     const ok = kind === "string" ? isStr(v) : kind === "number" ? isNum(v) : isBool(v);
     return ok ? { ok: true, value: v } : fail(`command ${type}: bad ${key}`);
   };
+  // v1.1：会话命令的 sessionId 可选（单会话 core 忽略；兼容 GUI 旧调用）
+  const optionalSession = (): DecodeResult<unknown> => {
+    if (!("sessionId" in command)) return { ok: true, value: undefined };
+    return isStr(command["sessionId"])
+      ? { ok: true, value: command["sessionId"] }
+      : fail(`command ${type}: bad sessionId`);
+  };
 
   switch (type) {
     case "auth.login": {
@@ -223,7 +264,7 @@ export function decodeClientMessage(raw: unknown): DecodeResult<ClientCommand> {
     case "session.close":
     case "turn.abort":
     case "turn.send": {
-      const r = need("sessionId", "string");
+      const r = optionalSession();
       if (!r.ok) return r;
       if (type === "session.rename") {
         const t = need("title", "string");
@@ -234,31 +275,48 @@ export function decodeClientMessage(raw: unknown): DecodeResult<ClientCommand> {
           const x = need(key, "string");
           if (!x.ok) return x;
         }
+        if ("attachments" in command && !isArr(command["attachments"])) {
+          return fail("turn.send: attachments must be array");
+        }
       }
       break;
     }
     case "approval.resolve": {
-      for (const key of ["sessionId", "blockId", "decision"]) {
-        const r = need(key, "string");
-        if (!r.ok) return r;
+      const r = optionalSession();
+      if (!r.ok) return r;
+      for (const key of ["blockId", "decision"]) {
+        const x = need(key, "string");
+        if (!x.ok) return x;
       }
       break;
     }
     case "question.answer": {
-      for (const key of ["sessionId", "blockId", "key"]) {
-        const r = need(key, "string");
-        if (!r.ok) return r;
-      }
+      const r = optionalSession();
+      if (!r.ok) return r;
+      const b = need("blockId", "string");
+      if (!b.ok) return b;
+      if ("keys" in command && !isArr(command["keys"]))
+        return fail("question.answer: keys must be array");
+      if ("key" in command && !isStr(command["key"])) return fail("question.answer: bad key");
+      if ("custom" in command && !isStr(command["custom"]))
+        return fail("question.answer: bad custom");
       break;
     }
     case "command.run": {
-      const r = need("sessionId", "string");
+      const r = optionalSession();
       if (!r.ok) return r;
       if (!isArr(command.args)) return fail("command.run: args must be array");
       break;
     }
     case "settings.patch": {
       if (!isRec(command.patch)) return fail("settings.patch: patch must be object");
+      break;
+    }
+    case "transcript.fetch": {
+      if ("fromSeq" in command && !isNum(command["fromSeq"]))
+        return fail("transcript.fetch: bad fromSeq");
+      if ("limit" in command && !isNum(command["limit"]))
+        return fail("transcript.fetch: bad limit");
       break;
     }
     default:

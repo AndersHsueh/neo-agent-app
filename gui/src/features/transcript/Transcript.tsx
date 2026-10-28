@@ -3,9 +3,18 @@ import { Icon } from "@/components/Icon.tsx";
 import { lang, t } from "@/i18n";
 import { sendMessage } from "@/state/app.ts";
 import { activeSession } from "@/state/store.ts";
-import { renderBlock } from "./Blocks.tsx";
+import { type RenderBlockOptions, renderBlock } from "./Blocks.tsx";
 
-export function Transcript() {
+/**
+ * `onAnswerKeys` 是多选/自由输入的提交出口：
+ * Workbench 接线后传入（app 侧 answerQuestion 已支持 {key,keys,custom}），
+ * 未传时 Blocks 内置单选兜底。
+ */
+export function Transcript({
+  onAnswerKeys,
+}: {
+  onAnswerKeys?: RenderBlockOptions["onAnswerKeys"];
+}) {
   const state = activeSession.value;
   const scroller = useRef<HTMLDivElement>(null);
   const [follow, setFollow] = useState(true);
@@ -59,7 +68,7 @@ export function Transcript() {
         ) : (
           state.blocks.map((block) => (
             <div key={block.id} class="block">
-              {renderBlock(block, { streamingAssistantId: streamingId })}
+              {renderBlock(block, { streamingAssistantId: streamingId, onAnswerKeys })}
             </div>
           ))
         )}

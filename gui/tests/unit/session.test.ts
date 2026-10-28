@@ -105,9 +105,15 @@ describe("applyEvent", () => {
   });
 
   test("完整 fixture 事件序列可无异常重放，未知块的事件不炸", () => {
+    // v1.2 fixture 末尾含 session.cleared：清空后 blocks 归零，所以分两段断言。
+    const clearedIndex = EVENT_FIXTURES.findIndex((e) => e.type === "session.cleared");
+    expect(clearedIndex).toBeGreaterThan(0);
     let state = base();
-    for (const event of EVENT_FIXTURES) state = applyEvent(state, event);
-    expect(state.blocks.length).toBeGreaterThan(SNAPSHOT_FIXTURE.blocks.length);
+    for (const event of EVENT_FIXTURES.slice(0, clearedIndex)) state = applyEvent(state, event);
+    expect(state.blocks.length).toBeGreaterThan(0);
+
+    for (const event of EVENT_FIXTURES.slice(clearedIndex)) state = applyEvent(state, event);
+    expect(state.blocks).toHaveLength(0);
   });
 
   test("事件引用不存在的块时保持原状态", () => {
