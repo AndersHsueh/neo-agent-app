@@ -73,7 +73,7 @@ bun run check && bun run test:e2e
 
 - 自动发现真实 Hub（无登录页；Hub 未启动显示离线页 + 重试）
 - 多会话侧栏（磁盘会话 + 运行中状态）、新建/切换/关闭/恢复（resume）
-- 流式正文、思维链折叠、工具卡、轮次统计（v1.2 新字段：finishReason/contextUsage/error）
+- 流式正文（**完整 markdown 渲染**：标题/列表/GFM 表格/代码块/引用/链接，零依赖安全渲染）、思维链折叠、工具卡、轮次统计（v1.2 新字段：finishReason/contextUsage/error）
 - AskUser：单选、多选、自由输入；写文件审批（内联 + 弹窗；无 diff 显示 detail，倒计时读 deadlineAt）
 - 命令面板由 `commands.json` 生成（`/tier fast` 带参、未知命令有回执、结果卡 7 种 ViewBlock）
 - 图片附件：选择/粘贴 → 预览 → `turn.send.attachments`（≤5 张 / 单张 ≤5MB / png|jpeg|webp）

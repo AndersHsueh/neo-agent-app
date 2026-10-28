@@ -37,6 +37,7 @@ cd neo-agent-app/gui && bun install && bun run dev    # vite :5296
 | 控制器 | `gui/src/state/app.ts` | 启动链改为「发现即登录」；单连接单会话（换会话先 `detach`）、`attach{lastSeq,epoch}`；`create` 必带 `title`；`close` 后自动 attach 下一条（失败则新建）；`runCommand` 返回 `{ok,blocks,changes,error}`；`fetchTranscript`；`settings.patch` 只读；`turn.aborted` 合成 banner |
 | 状态 | `gui/src/state/store.ts`、`session.ts` | store 增加 endpoint/capabilities/versions/boot(connecting/ready/offline)，`session.ts` 退化为 `protocol/reducer` 的 re-export |
 | UI | `features/login`、`App.tsx` | 登录页改为「离线兜底」（发现失败显示原因 + 重试）；发现成功但 WS 不通 → 工作台 + `.connbar`，不回登录页 |
+| 渲染 | `gui/src/lib/markdown.ts`、`components/Prose.tsx`、`features/transcript/Blocks.tsx`、`styles/components.css` | 助手正文改为完整 markdown 渲染（零依赖、全量转义）：标题 / 列表（两级）/ **GFM 表格（对齐）** / 围栏代码块 / 引用 / 分隔线 / 行内 code·bold·italic·删除线·链接；命令结果 markdown 复用同一渲染器；流式光标插在最后段落内 |
 | UI | `features/transcript/Blocks.tsx`、`approval/`、`palette/`、`lib/commands.ts`、`features/composer/` | v1.2 新块（turn.aborted/compact/command.result/ViewBlock/banner/统计新字段）、审批无 diff 显示 detail、提问多选/自由输入、命令面板由 `commands.json` 生成（`/tier fast` 带参、未知命令回执 + `.cmdresult`）、图片选择/粘贴/预览/限流 |
 | 测试 | `gui/tests/e2e/**`、`playwright.config.ts`、`gui/tests/unit/vendor-conformance.test.ts`、`scripts/probe-hub.ts` | e2e 切真实 Hub；新增 33→ 单测（含 vendor 一致性 12 条）；Hub 协议探测脚本 |
 
@@ -49,7 +50,7 @@ cd neo-agent-app/gui && bun install && bun run dev    # vite :5296
 | 闸门 | 结果 |
 |---|---|
 | `bun run typecheck` | ✅ 0 error |
-| `bun run test`（vitest） | ✅ 4 files / **33 pass**（reducer、protocol、i18n、vendor conformance） |
+| `bun run test`（vitest） | ✅ 5 files / **47 pass**（reducer、protocol、i18n、vendor conformance） |
 | `bun run test:e2e`（Playwright + 真实 Hub + 真实 LLM） | ✅ 12 pass / 0 fail（约 41–47s，连续 5 次全绿） |
 | `bun x vite build` | ✅ 62 modules |
 | `bun run lint`（biome 改动文件） | ✅ 0 error（components.css 仅有 2 个 baseline warning） |
@@ -70,6 +71,7 @@ cd neo-agent-app/gui && bun install && bun run dev    # vite :5296
 | S9 | worker 崩溃恢复：`kill -9` 全部 worker → Hub 发 `session.status{dead}` 解绑 → GUI 自动 re-attach（resume）→ 下一条消息正常收口 | ✅ | `50-after-crash.png` |
 | S10 | Hub WS 不可达（发现 200 + 坏 url）→ 工作台 + 离线条 + 退避重试；发现 503 → 离线兜底页（原因 + 可点重试） | ✅ | `60-badws.png`、`61-offline.png` |
 | S11 | 命令面板：`/tier ` 由 catalog 生成 `模型与档位` 分组 → 执行 → `.cmdresult`（kv 结果 + changes）；`/nope` → `data.ok:false` + notice | ✅ | `31-palette.png`、`32-palette-result.png` |
+| S13 | markdown 渲染：真实 LLM 输出 GFM 表格 → `<table>/<th>/<td>` 正确渲染（`|---|` 分隔行不外泄）、无原始竖线文本；XSS 全量转义（单测 14 条覆盖） | ✅ | `95-markdown.png` / `07-markdown-table.png` |
 | S12 | 权威全文：`assistant.end.text` 覆盖 delta（段落单段、无重复）；stats 带 finishReason/contextUsage/error | ✅ | `40-final-turn.png` |
 
 ### 3.2.1 界面证据
@@ -84,6 +86,7 @@ cd neo-agent-app/gui && bun install && bun run dev    # vite :5296
 | `04-palette.png` | 命令面板（由 `commands.json` 生成、`/tier [tier]` 带参） |
 | `05-offline-connbar.png` | 发现成功但 Hub WS 不可达：工作台 + 离线横条 + 退避重连 |
 | `06-offline-page.png` | 发现失败（503）：离线兜底页 + 原因 + 重试 |
+| `07-markdown-table.png` | 助手正文 markdown 渲染：GFM 表格（对齐/表头）、段落换行、工具调用链 |
 
 ### 3.3 Hub 协议探测（`scripts/probe-hub.ts`，14 项）
 

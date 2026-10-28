@@ -2268,3 +2268,164 @@
   object-fit: cover;
   background: var(--surface-2);
 }
+
+/* ------------------------------------------------------------------ */
+/* Markdown 渲染（助手正文 / 命令结果；见 lib/markdown.ts）              */
+/* ------------------------------------------------------------------ */
+.md > * + * {
+  margin-top: 9px;
+}
+
+.md p {
+  margin: 0;
+}
+
+.md h1,
+.md h2,
+.md h3,
+.md h4,
+.md h5,
+.md h6 {
+  color: #eaf8ef;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1.35;
+}
+
+.md h1 {
+  font-size: 16px;
+}
+
+.md h2 {
+  font-size: 15px;
+}
+
+.md h3 {
+  font-size: 13.5px;
+}
+
+.md h4,
+.md h5,
+.md h6 {
+  font-size: 13px;
+  color: var(--ink-2);
+}
+
+.md__tablewrap {
+  overflow-x: auto;
+  border-radius: var(--r-3);
+  box-shadow: inset 0 0 0 1px var(--line-1);
+  background: var(--surface-2);
+}
+
+.md table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.md thead th {
+  background: var(--surface-3);
+  color: var(--ink-2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.md th,
+.md td {
+  padding: 6px 10px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line-1);
+}
+
+.md tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.md th[data-align="center"],
+.md td[data-align="center"] {
+  text-align: center;
+}
+
+.md th[data-align="right"],
+.md td[data-align="right"] {
+  text-align: right;
+}
+
+.md__pre {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--r-3);
+  background: #050908;
+  box-shadow: inset 0 0 0 1px var(--line-1);
+  overflow: auto;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.md__pre code {
+  padding: 0;
+  background: none;
+  box-shadow: none;
+  color: #c8f2da;
+  font-size: inherit;
+}
+
+.md blockquote {
+  margin: 0;
+  padding: 2px 0 2px 12px;
+  border-left: 2px solid var(--accent-dim);
+  color: var(--ink-2);
+}
+
+.md blockquote > * + * {
+  margin-top: 6px;
+}
+
+.md hr {
+  border: 0;
+  border-top: 1px solid var(--line-2);
+  margin: 12px 0;
+}
+
+.md a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--accent-dim);
+}
+
+.md a:hover {
+  color: var(--accent-hover);
+  border-bottom-color: var(--accent);
+}
+
+.md del {
+  color: var(--ink-3);
+}
+
+.md ul,
+.md ol {
+  margin: 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.md ul ul,
+.md ul ol,
+.md ol ul,
+.md ol ol {
+  margin-top: 5px;
+}
+
+.md li::marker {
+  color: var(--accent-dim);
+}
+
+.md li > p {
+  margin: 0;
+}

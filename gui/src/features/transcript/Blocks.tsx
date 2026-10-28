@@ -4,6 +4,7 @@ import { Icon } from "@/components/Icon.tsx";
 import { Prose } from "@/components/Prose.tsx";
 import { lang, lang as langSignal, t } from "@/i18n";
 import { formatCost, formatTime, formatTokens, inlineMd } from "@/lib/fx.ts";
+import { renderMarkdown } from "@/lib/markdown.ts";
 import { TIER_ICONS, TIER_KEYS, tierName } from "@/lib/tiers.ts";
 import type {
   ApprovalBlock,
@@ -524,79 +525,15 @@ export function BannerRow({ block }: { block: BannerBlock | ErrorBlock }) {
 /* 命令结果（command.result / command.run 回执）                        */
 /* ------------------------------------------------------------------ */
 
-/** markdown 的最小渲染：段落 / 列表 / ``` 代码块；行内走白名单 inlineMd */
+/** 命令结果的 markdown：与助手正文共用 lib/markdown（标题/表格/列表/代码块/引用） */
 function MarkdownChunk({ text }: { text: string }) {
-  const blocks: preact.JSX.Element[] = [];
-  let paragraph: string[] = [];
-  let list: { ordered: boolean; items: string[] } | null = null;
-  let code: string[] | null = null;
-
-  const flushParagraph = () => {
-    if (paragraph.length === 0) return;
-    blocks.push(
-      <p key={blocks.length} dangerouslySetInnerHTML={{ __html: inlineMd(paragraph.join(" ")) }} />,
-    );
-    paragraph = [];
-  };
-  const flushList = () => {
-    if (!list) return;
-    const items = list.items.map((item, index) => (
-      <li key={index} dangerouslySetInnerHTML={{ __html: inlineMd(item) }} />
-    ));
-    blocks.push(
-      list.ordered ? <ol key={blocks.length}>{items}</ol> : <ul key={blocks.length}>{items}</ul>,
-    );
-    list = null;
-  };
-  const flushCode = () => {
-    if (!code) return;
-    blocks.push(
-      <pre key={blocks.length} class="cmdresult__pre">
-        {code.join("\n")}
-      </pre>,
-    );
-    code = null;
-  };
-
-  for (const raw of text.split("\n")) {
-    const line = raw.trimEnd();
-    if (line.trimStart().startsWith("```")) {
-      if (code) flushCode();
-      else {
-        flushParagraph();
-        flushList();
-        code = [];
-      }
-      continue;
-    }
-    if (code) {
-      code.push(raw);
-      continue;
-    }
-    const bullet = /^\s*[-*]\s+(.*)$/.exec(line);
-    const ordered = bullet ? null : /^\s*\d+[.)]\s+(.*)$/.exec(line);
-    const item = bullet?.[1] ?? ordered?.[1];
-    if (item !== undefined) {
-      flushParagraph();
-      const isOrdered = ordered !== null;
-      if (list && list.ordered !== isOrdered) flushList();
-      list = list ?? { ordered: isOrdered, items: [] };
-      list.items.push(item);
-      continue;
-    }
-    if (line.trim() === "") {
-      flushParagraph();
-      flushList();
-      continue;
-    }
-    flushList();
-    paragraph.push(line.trim());
-  }
-  flushParagraph();
-  flushList();
-  flushCode();
-
-  return <div class="prose cmdresult__md">{blocks}</div>;
+  return (
+    <div
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: renderMarkdown 输出已全量转义
+      class="prose md cmdresult__md"
+      dangerouslySetInnerHTML={{ __html: renderMarkdown(text) }}
+    />
+  );
 }
 
 /** ViewBlock 的七种形状：text / markdown / kv / list / table / diff / notice */
