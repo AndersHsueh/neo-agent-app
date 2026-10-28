@@ -1,0 +1,17 @@
+$ bun run test:e2e
+$ playwright test
+[WebServer] (node:73056) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 5 tests using 1 worker
+
+(node:73059) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chrome] › tests/e2e/workbench.spec.ts:9:1 › 登录后按用户隔离会话 (3.7s)
+  ✓  2 [chrome] › tests/e2e/workbench.spec.ts:23:1 › 一轮完整流程：提问 → 审批 → 升档 → 统计 (4.8s)
+  ✓  3 [chrome] › tests/e2e/workbench.spec.ts:40:1 › 审批弹窗：焦点不逃出、Esc 关闭、背景 inert (4.5s)
+  ✓  4 [chrome] › tests/e2e/workbench.spec.ts:61:1 › 断线重连后现场保留，且用户消息不重复 (5.2s)
+  ✓  5 [chrome] › tests/e2e/workbench.spec.ts:74:1 › 命令面板可键盘操作，英文界面无中文残留 (6.2s)
+
+  5 passed (25.9s)
+EXIT=0

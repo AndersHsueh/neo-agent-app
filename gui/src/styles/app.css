@@ -1,0 +1,321 @@
+/* =========================================================================
+   APP — 工作台之外的补充：登录、账号、用量、组件墙、连接条
+   （其余样式来自原型的设计系统，类名一一对应，便于视觉回归对照）
+   ========================================================================= */
+
+/* ---- 结构微调：块包装不改变流式间距 ---- */
+.stream__inner > .block {
+  display: contents;
+}
+
+.banner--error {
+  background: var(--danger-wash);
+  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.25);
+  color: var(--ink-1);
+}
+
+.banner--error svg.icon {
+  color: var(--danger);
+}
+
+.btn--sm {
+  height: 26px;
+  padding: 0 9px;
+  font-size: var(--fs-xs);
+}
+
+.togrow__key {
+  margin-left: 6px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-4);
+}
+
+/* ---- 连接条 ---- */
+.connbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--warn-wash);
+  box-shadow: inset 0 -1px 0 rgba(255, 184, 77, 0.18);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--warn);
+}
+
+/* ---- 登录 ---- */
+.login {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(900px 520px at 50% 0%, rgba(94, 224, 163, 0.06), transparent 65%), var(--void);
+}
+
+.login__card {
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 26px;
+  border-radius: var(--r-5);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
+  box-shadow:
+    var(--shadow-2),
+    inset 0 0 0 1px var(--line-2);
+}
+
+.login__brand {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+
+.login__mark {
+  width: 44px;
+  height: 44px;
+  color: var(--accent);
+  filter: drop-shadow(0 0 20px rgba(94, 224, 163, 0.25));
+}
+
+.login__mark svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.login__name {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  color: var(--ink-1);
+}
+
+.login__sub {
+  margin-top: 5px;
+  font-size: var(--fs-sm);
+  line-height: 1.5;
+  color: var(--ink-3);
+}
+
+.login__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login__submit {
+  margin-top: 4px;
+  height: 36px;
+}
+
+.login__error {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 10px;
+  border-radius: var(--r-2);
+  background: var(--danger-wash);
+  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.25);
+  font-size: var(--fs-sm);
+  color: var(--danger);
+}
+
+.login__demo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+.login__demo .eyebrow {
+  margin-right: 4px;
+}
+
+.login__foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-xs);
+  color: var(--ink-4);
+}
+
+.login__foot svg.icon {
+  color: var(--ink-4);
+}
+
+/* ---- 账号卡 ---- */
+.account__card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.account__avatar {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+  color: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.account__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.account__name {
+  font-size: var(--fs-sm);
+  color: var(--ink-1);
+}
+
+.account__mail {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-4);
+}
+
+/* ---- 用量 ---- */
+.usage__tabs {
+  margin-left: auto;
+  display: flex;
+  gap: 2px;
+}
+
+.usage__tab {
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--ink-4);
+  padding: 2px 6px;
+  border-radius: var(--r-1);
+}
+
+.usage__tab:hover {
+  color: var(--ink-1);
+  background: var(--surface-3);
+}
+
+.usage__tab.is-on {
+  color: var(--accent);
+  background: var(--accent-wash);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
+}
+
+/* ---- 覆盖层定位补充 ---- */
+.layer--top {
+  align-items: flex-start;
+  padding-top: 12vh;
+}
+
+.provider {
+  padding: 6px 13px;
+}
+
+.provider.is-open {
+  padding-bottom: 13px;
+  gap: 11px;
+}
+
+.provider__body {
+  display: none;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.provider.is-open .provider__body {
+  display: flex;
+}
+
+/* ---- 组件墙 ---- */
+.gallery {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  padding: 34px min(6vw, 64px) 80px;
+}
+
+.gallery__head {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gallery__head h1 {
+  font-size: var(--fs-xl);
+  font-weight: 550;
+  color: var(--ink-1);
+  letter-spacing: var(--tracking-tight);
+}
+
+.gallery__back {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--ink-4);
+}
+
+.gallery__section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line-0);
+}
+
+.gallery__section h2 {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+}
+
+.gallery__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.gallery__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+.gallery__stream {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  max-width: 760px;
+}
+
+@media (max-width: 900px) {
+  .gallery__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.underbar__hint {
+  flex: 0 0 auto;
+}
+
+.tool__body {
+  background: rgba(2, 4, 3, 0.55);
+}

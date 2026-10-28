@@ -1,0 +1,409 @@
+/* =========================================================================
+   BASE — reset / 排版 / 材质 / 焦点 / 滚动
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  font-size: var(--fs-md);
+  line-height: var(--lh-normal);
+  letter-spacing: var(--tracking-tight);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden;
+}
+
+/* 屏幕材质：左上角极淡的磷光漫射 + 扫描线 + 颗粒。
+   三者都必须是“看不见的”，只在近距离停留时才察觉。 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.32) 0px,
+    rgba(0, 0, 0, 0.32) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: calc(var(--scan-op) * 0.16);
+  mix-blend-mode: multiply;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--grain-op);
+  background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+/* 全局底光：一个极弱的绿光斑，压制纯黑的廉价感 */
+.app::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(1100px 640px at 16% -14%, rgba(94, 224, 163, 0.06), transparent 62%),
+    radial-gradient(900px 600px at 88% 108%, rgba(53, 201, 255, 0.035), transparent 60%);
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+code,
+kbd,
+pre,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+}
+
+::selection {
+  background: rgba(94, 224, 163, 0.22);
+  color: #f2fff8;
+}
+
+/* ---- 焦点：只在键盘导航时出现，一个 1px 环 + 极弱外发光 ----------------- */
+:focus {
+  outline: none;
+}
+
+:focus-visible {
+  outline: 1px solid var(--accent-line);
+  outline-offset: 2px;
+  box-shadow: var(--glow-focus);
+  border-radius: var(--r-2);
+}
+
+/* ---- 滚动条 ------------------------------------------------------------ */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--line-1);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: var(--r-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--line-3);
+  border: 3px solid transparent;
+  background-clip: content-box;
+}
+
+/* ---- 排版原子 ---------------------------------------------------------- */
+.mono {
+  font-family: var(--font-mono);
+  font-variant-ligatures: none;
+}
+
+.dim {
+  color: var(--ink-3);
+}
+
+.muted {
+  color: var(--ink-4);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: var(--tracking-cap);
+  text-transform: uppercase;
+  color: var(--ink-3);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-4);
+  letter-spacing: 0.04em;
+  padding-left: 2px;
+}
+
+.kbd {
+  font-family: var(--font-mono);
+  font-size: var(--fs-2xs);
+  color: var(--ink-3);
+  border: 1px solid var(--line-1);
+  border-bottom-color: var(--line-2);
+  background: var(--surface-2);
+  border-radius: var(--r-1);
+  padding: 2px 5px;
+  line-height: 1;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+/* ---- 图标：统一 1.5 描边、圆角端点 ------------------------------------ */
+svg.icon {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+svg.icon--xs {
+  width: 14px;
+  height: 14px;
+}
+
+svg.icon--sm {
+  width: 16px;
+  height: 16px;
+}
+
+svg.icon--lg {
+  width: 22px;
+  height: 22px;
+}
+
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* ---- 状态灯 ------------------------------------------------------------ */
+.led {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--ink-4);
+  flex: 0 0 auto;
+}
+
+.led--live {
+  background: var(--ok);
+  box-shadow:
+    0 0 0 3px rgba(46, 240, 122, 0.08),
+    0 0 10px -1px rgba(46, 240, 122, 0.6);
+  animation: led-breathe 3.6s var(--ease-in-out) infinite;
+}
+
+.led--warn {
+  background: var(--warn);
+  box-shadow:
+    0 0 0 3px rgba(255, 184, 77, 0.08),
+    0 0 10px -1px rgba(255, 184, 77, 0.5);
+}
+
+.led--danger {
+  background: var(--danger);
+  box-shadow:
+    0 0 0 3px rgba(255, 92, 82, 0.08),
+    0 0 10px -1px rgba(255, 92, 82, 0.5);
+}
+
+.led--dim {
+  background: var(--ink-5);
+}
+
+.led--pulse {
+  animation: led-pulse 2s var(--ease-in-out) infinite;
+}
+
+@keyframes led-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes led-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.86);
+  }
+}
+
+/* ---- 通用动画 ---------------------------------------------------------- */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bar-sweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(320%);
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  55%,
+  100% {
+    opacity: 0.15;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 降动效：装饰性动画一律停掉，只保留状态可读性。
+   （不是 prefers-reduced-motion 的替代 —— 两者都支持。） */
+@media (prefers-reduced-motion: reduce) {
+  .led--live,
+  .led--pulse,
+  .agent__spark {
+    animation: none;
+  }
+}
+
+:root[data-motion="reduced"] .agent__spark,
+:root[data-motion="reduced"] .led--live {
+  animation: none;
+}
+
+@media (max-width: 900px) {
+  body {
+    font-size: var(--fs-lg);
+  }
+}
+
+/* QA/截图用：确定性帧。URL 加 ?anim=off 时启用。 */
+.no-anim *,
+.no-anim *::before,
+.no-anim *::after {
+  animation: none;
+  transition: none;
+}
+
+/* 减少动效：不只是把时长压短，而是把一切循环/位移/装饰动画停掉。
+   两个来源：系统偏好（JS 写入 data-motion）与设置页手动开关。 */
+[data-motion="reduced"] *,
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after {
+  animation-duration: 1ms;
+  animation-delay: 0s;
+  animation-iteration-count: 1;
+  transition-duration: 1ms;
+  scroll-behavior: auto;
+}
+
+[data-motion="reduced"] .boot__rain {
+  display: none;
+}
+
+[hidden] {
+  display: none;
+}

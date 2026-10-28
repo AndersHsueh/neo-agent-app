@@ -1,0 +1,168 @@
+/* =========================================================================
+   NEO · OPERATOR CONSOLE — 令牌层
+   自有色板：冷调石板灰中性 + 磷光青瓷绿。不借用任何第三方设计系统。
+   动效四档 100/180/280/420ms，全部无过冲 —— 工具不表演，只确认。
+   ========================================================================= */
+
+:root {
+  /* ---- 中性：石板黑，绿偏 2°，不是纯灰 ---------------------------------- */
+  --void: #050807;
+  --surface-0: #070b0a;
+  --surface-1: #0a100e;
+  --surface-2: #0d1512;
+  --surface-3: #111b17;
+  --surface-4: #16231e;
+  --surface-5: #1c2b25;
+
+  /* ---- 描边：同一条磷光绿，只改 alpha ---------------------------------- */
+  --line-0: rgba(126, 240, 178, 0.055);
+  --line-1: rgba(126, 240, 178, 0.09);
+  --line-2: rgba(126, 240, 178, 0.15);
+  --line-3: rgba(126, 240, 178, 0.26);
+  --line-4: rgba(126, 240, 178, 0.42);
+
+  /* ---- 墨色：偏绿的暖白，不是 #fff ------------------------------------ */
+  --ink-1: #dbe9e1;
+  --ink-2: #a9bfb2;
+  --ink-3: #84998c;
+  --ink-4: #6b8579; /* 4.8:1 on #0a100e — 标签层下限 */
+  --ink-5: #55695f; /* 仅用于非文字装饰；不承载可读文本 */
+
+  /* ---- 主强调：青瓷绿（chrome 用，不进档位语义） ----------------------- */
+  --accent: #5ee0a3;
+  --accent-hover: #7cf0bb;
+  --accent-press: #45c78b;
+  --accent-dim: #2c6b50;
+  --accent-wash: rgba(94, 224, 163, 0.1);
+  --accent-wash-strong: rgba(94, 224, 163, 0.17);
+  --accent-line: rgba(94, 224, 163, 0.34);
+
+  /* ---- 档位语义：直接继承 neo CLI（深思红/平衡绿/快速蓝/默认冰绿） ---- */
+  --tier-deep: #ff4a3d;
+  --tier-balanced: #2ef07a;
+  --tier-fast: #35c9ff;
+  --tier-default: #b6ffc4;
+  --tier-deep-wash: rgba(255, 74, 61, 0.13);
+  --tier-balanced-wash: rgba(46, 240, 122, 0.12);
+  --tier-fast-wash: rgba(53, 201, 255, 0.12);
+  --tier-default-wash: rgba(182, 255, 196, 0.13);
+
+  /* ---- 状态 ----------------------------------------------------------- */
+  --ok: #2ef07a;
+  --ok-wash: rgba(46, 240, 122, 0.12);
+  --warn: #ffb84d;
+  --warn-wash: rgba(255, 184, 77, 0.12);
+  --danger: #ff5c52;
+  --danger-wash: rgba(255, 92, 82, 0.12);
+  --info: #35c9ff;
+  --info-wash: rgba(53, 201, 255, 0.12);
+
+  /* ---- 字体 ----------------------------------------------------------- */
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB",
+    "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  --font-mono:
+    "SF Mono", "JetBrains Mono", ui-monospace, "Cascadia Mono", "Roboto Mono", Menlo, Consolas,
+    monospace;
+
+  --fs-2xs: 11px;
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-md: 13px;
+  --fs-lg: 14px;
+  --fs-xl: 16px;
+  --fs-2xl: 20px;
+  --fs-3xl: 26px;
+  --fs-4xl: 34px;
+
+  --lh-tight: 1.2;
+  --lh-snug: 1.38;
+  --lh-normal: 1.58;
+  --tracking-cap: 0.11em;
+  --tracking-tight: -0.012em;
+
+  /* ---- 间距 ----------------------------------------------------------- */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s7: 32px;
+  --s8: 40px;
+  --s9: 56px;
+
+  /* ---- 圆角：8px 基准，比阅读型 UI 更收 ------------------------------- */
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 8px;
+  --r-4: 12px;
+  --r-5: 16px;
+  --r-6: 22px;
+  --r-pill: 999px;
+
+  /* ---- 动效：四档，无过冲弹簧 ----------------------------------------- */
+  --d1: 100ms;
+  --d2: 180ms;
+  --d3: 280ms;
+  --d4: 420ms;
+  --d5: 620ms;
+  --ease-out: cubic-bezier(0.2, 0.75, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.45, 0, 1, 1);
+
+  /* ---- 阴影：只用暗投影，光晕只给焦点 --------------------------------- */
+  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.55), 0 10px 28px -16px rgba(0, 0, 0, 0.9);
+  --shadow-2: 0 1px 0 rgba(0, 0, 0, 0.6), 0 22px 60px -24px rgba(0, 0, 0, 0.95);
+  --glow-focus: 0 0 0 1px var(--accent-line), 0 0 20px -6px rgba(94, 224, 163, 0.4);
+  --glow-live: 0 0 18px -6px rgba(46, 240, 122, 0.45);
+
+  /* ---- 结构尺寸 ------------------------------------------------------- */
+  --rail-w: 56px;
+  --sidebar-w: 276px;
+  --aside-w: 312px;
+  --topbar-h: 56px;
+  --stream-max: 744px;
+
+  /* ---- 材质 ----------------------------------------------------------- */
+  --scan-op: 0.5;
+  --grain-op: 0.028;
+
+  --z-rail: 10;
+  --z-sidebar: 20;
+  --z-aside: 30;
+  --z-overlay: 60;
+  --z-modal: 70;
+  --z-toast: 80;
+  --z-boot: 100;
+}
+
+/* 中文排版：中文行高更松一点，字距不动（避免标题被拉散） */
+:root[lang^="zh"] {
+  --lh-normal: 1.66;
+  --lh-snug: 1.45;
+}
+
+/* 用户关掉扫描线/颗粒（设置页可切，原型里的“材质开关”） */
+:root[data-scanlines="off"] {
+  --scan-op: 0;
+}
+
+:root[data-grain="off"] {
+  --grain-op: 0;
+}
+
+/* 降低动效：不是“关掉”，而是把位移与装饰性动画摘掉，只留 100/180 的透明度 */
+:root[data-motion="reduced"] {
+  --d3: 100ms;
+  --d4: 100ms;
+  --d5: 100ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-motion="full"]) {
+    --d3: 100ms;
+    --d4: 100ms;
+    --d5: 100ms;
+  }
+}

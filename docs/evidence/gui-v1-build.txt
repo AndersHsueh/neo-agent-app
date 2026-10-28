@@ -1,0 +1,8 @@
+$ bun run build
+computing gzip size...
+dist/index.html                    0.57 kB │ gzip:  0.34 kB
+dist/assets/index-DFwVVLSZ.css    68.34 kB │ gzip: 12.94 kB
+dist/assets/Gallery-DjHCpeMa.js    4.70 kB │ gzip:  2.15 kB │ map:  11.98 kB
+dist/assets/index-DWIQnnzd.js    150.77 kB │ gzip: 48.25 kB │ map: 410.06 kB
+✓ built in 233ms
+EXIT=0

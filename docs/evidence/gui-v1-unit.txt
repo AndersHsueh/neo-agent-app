@@ -1,0 +1,15 @@
+$ bun run test
+$ vitest run
+
+ RUN  v3.2.7 /Users/xueyuheng/research/000-alice-new/neo-agent-gui/gui
+
+ ✓ tests/unit/protocol.test.ts (6 tests) 2ms
+ ✓ tests/unit/i18n.test.ts (5 tests) 11ms
+ ✓ tests/unit/session.test.ts (9 tests) 3ms
+
+ Test Files  3 passed (3)
+      Tests  20 passed (20)
+   Start at  03:10:10
+   Duration  329ms (transform 62ms, setup 0ms, collect 115ms, tests 16ms, environment 413ms, prepare 105ms)
+
+EXIT=0

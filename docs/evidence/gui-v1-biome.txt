@@ -1,0 +1,247 @@
+$ bun run lint
+$ biome check .
+src/components/sprite-markup.ts:5:30 lint/complexity/noUselessStringRaw ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  i String.raw is useless when the raw string doesn't contain any escape sequence.
+  
+      3 │  * 由原型 `index.html` 的 <defs> 直接搬来；改图标改这里，改完跑视觉回归。
+      4 │  */
+    > 5 │ export const SPRITE_MARKUP = String.raw`<defs>
+        │                              ^^^^^^^^^^^^^^^^^
+    > 6 │     <symbol id="i-logo" viewBox="0 0 24 24">
+         ...
+  > 226 │       <path d="M6.4 6.4l2.4 2.4M15.2 15.2l2.4 2.4M17.6 6.4l-2.4 2.4M8.8 15.2l-2.4 2.4" opacity=".5" />
+  > 227 │     </symbol>
+  > 228 │   </defs>`;
+        │   ^^^^^^^^
+    229 │ 
+  
+  i Remove the String.raw call because it's useless here, String.raw can deal with string which contains escape sequence like \n, \t, \r, \\, \", \'.
+  
+
+src/features/approval/ApprovalDialog.tsx:18:39 lint/style/noNonNullAssertion ━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Forbidden non-null assertion.
+  
+    16 │     if (block?.kind !== "approval" || !block.deadlineAt) return;
+    17 │     const timer = setInterval(() => {
+  > 18 │       setLeft(Math.max(0, Math.round((block.deadlineAt! - Date.now()) / 1000)));
+       │                                       ^^^^^^^^^^^^^^^^^
+    19 │     }, 500);
+    20 │     return () => clearInterval(timer);
+  
+  i A non-null assertion tells TypeScript to ignore a possible null or undefined value. If the value is missing at runtime, the code fails with an error that the compiler could not catch.
+  
+  i Check that the value is defined before using it, for example with an if statement or optional chaining, instead of asserting it.
+  
+
+src/styles/components.css:524:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 1, 0)
+  
+    523 │ /* 助手正文：块式排版，不套气泡 */
+  > 524 │ .msg__body {
+        │ ^^^^^^^^^^
+    525 │   font-size: 14px;
+    526 │   color: var(--ink-1);
+  
+  i This selector specificity is (0, 2, 0)
+  
+    503 │ }
+    504 │ 
+  > 505 │ .msg--user .msg__body {
+        │ ^^^^^^^^^^^^^^^^^^^^^
+    506 │   max-width: 82%;
+    507 │   padding: 11px 14px;
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/components.css:551:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 1, 1)
+  
+    549 │ }
+    550 │ 
+  > 551 │ .prose code {
+        │ ^^^^^^^^^^^
+    552 │   font-family: var(--font-mono);
+    553 │   font-size: 0.87em;
+  
+  i This selector specificity is (0, 2, 1)
+  
+    514 │ }
+    515 │ 
+  > 516 │ .msg--user .msg__body code {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    517 │   background: rgba(94, 224, 163, 0.09);
+    518 │   border-radius: 3px;
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/panels.css:654:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+  
+    652 │ }
+    653 │ 
+  > 654 │ .settings__navitem svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    655 │   width: 14px;
+    656 │   height: 14px;
+  
+  i This selector specificity is (0, 3, 1)
+  
+    522 │ }
+    523 │ 
+  > 524 │ .palette__item.is-active svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    525 │   color: var(--accent);
+    526 │ }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/panels.css:1089:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+  
+    1087 │ }
+    1088 │ 
+  > 1089 │ .note svg.icon {
+         │ ^^^^^^^^^^^^^^
+    1090 │   color: var(--info);
+    1091 │   flex: 0 0 auto;
+  
+  i This selector specificity is (0, 3, 1)
+  
+    522 │ }
+    523 │ 
+  > 524 │ .palette__item.is-active svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    525 │   color: var(--accent);
+    526 │ }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/panels.css:1100:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+  
+    1098 │ }
+    1099 │ 
+  > 1100 │ .note--warn svg.icon {
+         │ ^^^^^^^^^^^^^^^^^^^^
+    1101 │   color: var(--warn);
+    1102 │ }
+  
+  i This selector specificity is (0, 3, 1)
+  
+    522 │ }
+    523 │ 
+  > 524 │ .palette__item.is-active svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    525 │   color: var(--accent);
+    526 │ }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/panels.css:1177:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+  
+    1175 │ }
+    1176 │ 
+  > 1177 │ .dialog__icon svg.icon {
+         │ ^^^^^^^^^^^^^^^^^^^^^^
+    1178 │   width: 16px;
+    1179 │   height: 16px;
+  
+  i This selector specificity is (0, 3, 1)
+  
+    522 │ }
+    523 │ 
+  > 524 │ .palette__item.is-active svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    525 │   color: var(--accent);
+    526 │ }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/panels.css:1334:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+  
+    1332 │ }
+    1333 │ 
+  > 1334 │ .toast svg.icon {
+         │ ^^^^^^^^^^^^^^^
+    1335 │   width: 14px;
+    1336 │   height: 14px;
+  
+  i This selector specificity is (0, 3, 1)
+  
+    522 │ }
+    523 │ 
+  > 524 │ .palette__item.is-active svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    525 │   color: var(--accent);
+    526 │ }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/panels.css:1340:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+  
+    1338 │ }
+    1339 │ 
+  > 1340 │ .toast--warn svg.icon {
+         │ ^^^^^^^^^^^^^^^^^^^^^
+    1341 │   color: var(--warn);
+    1342 │ }
+  
+  i This selector specificity is (0, 3, 1)
+  
+    522 │ }
+    523 │ 
+  > 524 │ .palette__item.is-active svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    525 │   color: var(--accent);
+    526 │ }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+src/styles/panels.css:1344:1 lint/style/noDescendingSpecificity ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  ! Descending specificity selector found. This selector specificity is (0, 2, 1)
+  
+    1342 │ }
+    1343 │ 
+  > 1344 │ .toast--danger svg.icon {
+         │ ^^^^^^^^^^^^^^^^^^^^^^^
+    1345 │   color: var(--danger);
+    1346 │ }
+  
+  i This selector specificity is (0, 3, 1)
+  
+    522 │ }
+    523 │ 
+  > 524 │ .palette__item.is-active svg.icon {
+        │ ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    525 │   color: var(--accent);
+    526 │ }
+  
+  i Descending specificity selector may not be applied. Consider rearranging the order of the selectors. See MDN web docs for more details.
+  
+
+Checked 65 files in 14ms. No fixes applied.
+Found 10 warnings.
+Found 1 info.
+EXIT=0
