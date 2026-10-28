@@ -1,6 +1,6 @@
 # neo-agent-app × neo-core-serve v0.0.2 联调报告
 
-> 日期：2026-10-29 · 环境：macOS (M4P) · 真实 Hub（非 dummy-serv）· 真实 LLM
+> 版本：**v0.1.0**（tag `v0.1.0`）· 日期：2026-10-29 · 环境：macOS (M4P) · 真实 Hub（非 dummy-serv）· 真实 LLM
 > 联调指南：`neo-core-serve/docs/gui-integration-v0.0.2.md`（协议 v1.2）
 > 结论：**GUI 已切到真实 Hub 跑通**（发现/握手/多会话/流式/审批/提问/命令/附件/断线重连/worker 崩溃恢复），
 > 自动化 e2e 与人工冒烟均通过；本文同时记录 Hub 侧发现的 4 个问题与文档纠偏。

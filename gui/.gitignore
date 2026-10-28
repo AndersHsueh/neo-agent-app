@@ -1,8 +1,27 @@
+# 依赖与构建产出
 node_modules/
 dist/
+build/
+out/
+.vite/
 coverage/
 playwright-report/
+blob-report/
 test-results/
-.run/
+*.tsbuildinfo
+
+# 本地 / 日志 / 环境变量
 .DS_Store
+*.log
 *.local
+.env
+.env.*
+!.env.example
+.run/
+tmp/
+*.tmp
+
+# 编辑器
+.idea/
+.vscode/
+*.swp

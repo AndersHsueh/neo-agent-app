@@ -1,7 +1,9 @@
 # neo GUI（v1 前端）
 
+> 当前版本 **v0.1.0**（tag `v0.1.0`）· 已接入真实 **Matrix-Core v0.0.2 Hub**
+
 neo 的桌面工作台前端。**严格分层 + 自有设计系统**，对接真实后端 **Matrix-Core v0.0.2 Hub**
-（`neo-core-serve`，本地多会话、每会话一个 worker 子进程）。
+（`neo-core-serve`，本地多会话、每会话一个 worker 子进程）。仓库总览见 [`../README.md`](../README.md)。
 
 ```
 浏览器(Preact) ──GET /__neo/endpoint（发现+token）──▶ Vite dev 中间件 ──读──▶ ~/.neo/run/core.json
