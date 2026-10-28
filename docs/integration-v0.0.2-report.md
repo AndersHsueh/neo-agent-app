@@ -72,6 +72,19 @@ cd neo-agent-app/gui && bun install && bun run dev    # vite :5296
 | S11 | 命令面板：`/tier ` 由 catalog 生成 `模型与档位` 分组 → 执行 → `.cmdresult`（kv 结果 + changes）；`/nope` → `data.ok:false` + notice | ✅ | `31-palette.png`、`32-palette-result.png` |
 | S12 | 权威全文：`assistant.end.text` 覆盖 delta（段落单段、无重复）；stats 带 finishReason/contextUsage/error | ✅ | `40-final-turn.png` |
 
+### 3.2.1 界面证据
+
+`docs/shots/integration-v0.0.2/`
+
+| 文件 | 内容 |
+|---|---|
+| `01-workbench.png` | 真实 Hub 工作台：会话列表（真实标题）、流式回答、统计行、右侧上下文/用量/provider |
+| `02-approval.png` | 审批卡（无 diff → detail、倒计时、允许/拒绝） |
+| `03-question.png` | ask_user 提问卡（单选） |
+| `04-palette.png` | 命令面板（由 `commands.json` 生成、`/tier [tier]` 带参） |
+| `05-offline-connbar.png` | 发现成功但 Hub WS 不可达：工作台 + 离线横条 + 退避重连 |
+| `06-offline-page.png` | 发现失败（503）：离线兜底页 + 原因 + 重试 |
+
 ### 3.3 Hub 协议探测（`scripts/probe-hub.ts`，14 项）
 
 发现/握手/ready caps、create 带/不带 title、list 占位形状、attach resume 快照、单连接绑定语义、
@@ -121,10 +134,12 @@ mid-turn 断线重连 `snapshot.live`、附件限制与错误码、错误信封�
    worker 存活。UI 列表只用 id/status 壳，选中后以 attach 的 snapshot 校正。
 4. **流式不可假设逐 token**：服务端 16ms/4KB 合批（实测 default 档整段一次到、fast 档 261 字 3 帧）。
    渲染以 `assistant.end.text` / `reasoning.end.text` 覆盖，delta 只做过程展示。
-5. **重连以完整快照重建**：v0.0.2 不做增量回放；`lastSeq/epoch` 照带（未来兼容），本地乐观消息按 clientId 去重。
-6. **发现即登录**：浏览器读不到 `~/.neo/run/core.json`，dev 由 Vite 中间件代读并换 dev-auth user；
+5. **列表标题以本地 snapshot.meta 校正**：`session.list` 的 title 是占位值（`会话 <id后6位>`），
+   `refreshSessions()` 用已 attach 会话的 `snapshot.meta` 覆盖列表字段，避免刷新后被占位标题打回。
+6. **重连以完整快照重建**：v0.0.2 不做增量回放；`lastSeq/epoch` 照带（未来兼容），本地乐观消息按 clientId 去重。
+7. **发现即登录**：浏览器读不到 `~/.neo/run/core.json`，dev 由 Vite 中间件代读并换 dev-auth user；
    生产（Tauri）由本地后端实现同一 `/__neo/endpoint` 契约。
-7. **附件前端限流**：≤5 张 / 单张 ≤5MB / png|jpeg|webp（服务端还有 8MB 帧上限；5×5MB 会超帧，故前端先拦）。
+8. **附件前端限流**：≤5 张 / 单张 ≤5MB / png|jpeg|webp（服务端还有 8MB 帧上限；5×5MB 会超帧，故前端先拦）。
    协议 v0.0.2 不回传附件元数据 → 历史图片不可恢复（已知限制，刷新后只剩文本）。
 
 ---

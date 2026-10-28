@@ -281,7 +281,22 @@ async function request<T>(command: ClientCommand, timeoutMs?: number): Promise<T
 
 export async function refreshSessions(): Promise<void> {
   const data = await request<{ sessions: SessionMeta[] }>({ type: "session.list" });
-  if (data) store.sessions.value = data.sessions;
+  if (!data) return;
+  // session.list 的 title/provider/tier/mode 是占位值（见 docs/hub-probe-findings.md P2），
+  // 真源是 attach 后的 snapshot.meta：已 attach 过的会话以本地 state.meta 校正，别被列表覆盖。
+  store.sessions.value = data.sessions.map((fresh) => {
+    const known = store.states.value[fresh.id]?.meta;
+    if (!known) return fresh;
+    return {
+      ...fresh,
+      title: known.title || fresh.title,
+      tier: known.tier,
+      provider: known.provider || fresh.provider,
+      model: known.model || fresh.model,
+      mode: known.mode ?? fresh.mode,
+      cwd: known.cwd || fresh.cwd,
+    };
+  });
 }
 
 export async function refreshSettings(): Promise<void> {
