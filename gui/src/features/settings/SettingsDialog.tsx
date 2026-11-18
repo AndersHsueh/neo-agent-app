@@ -501,7 +501,7 @@ function Appearance() {
       <Section title={t("settings.appearance.theme")}>
         <div class="chips">
           <button class="chip is-on" type="button">
-            matrix
+            {t("settings.appearance.theme.paper")}
           </button>
         </div>
         <div class="note">

@@ -69,20 +69,8 @@ export const store = {
   states: signal<Record<string, SessionState>>({}),
   settings: signal<SettingsView | null>(null),
   usage: signal<UsageSummary | null>(null),
-  peers: signal<Peer[]>([
-    {
-      name: "tom",
-      status: "working",
-      activity: { zh: "正在跑 PD-1 Windows 验收", en: "running PD-1 Windows acceptance" },
-      age: "12s",
-    },
-    {
-      name: "jacky",
-      status: "waiting",
-      activity: { zh: "等你决定是否合并 #142", en: "waiting on your call for #142" },
-      age: "2m",
-    },
-  ]),
+  /** 只放 Hub 推过来的对端。没有事件就是空，不放演示名字。 */
+  peers: signal<Peer[]>([]),
   toasts: signal<Toast[]>([]),
   overlay: signal<Overlay>(null),
   /** 正在弹窗审阅的审批块 id */

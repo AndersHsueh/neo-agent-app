@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "preact/hooks";
-import { Icon } from "@/components/Icon.tsx";
-import { lang, t } from "@/i18n";
-import { sendMessage } from "@/state/app.ts";
+import { t } from "@/i18n";
 import { activeSession } from "@/state/store.ts";
 import { type RenderBlockOptions, renderBlock } from "./Blocks.tsx";
 
@@ -78,54 +76,16 @@ export function Transcript({
 }
 
 function EmptyState() {
-  const promptRed =
-    lang.value === "zh"
-      ? "先把相关代码读一遍，给我一个最小改动方案。"
-      : "Read the relevant code first, then give me the smallest viable patch.";
-  const promptBlue =
-    lang.value === "zh" ? "直接给结论与补丁。" : "Straight to the answer and the patch.";
   return (
     <div class="empty">
       <div class="empty__mark">
-        <svg viewBox="0 0 24 24" role="img" aria-label="NEO">
-          <title>NEO</title>
+        <svg viewBox="0 0 24 24" role="img" aria-label={t("empty.word")}>
+          <title>{t("empty.word")}</title>
           <use href="#i-logo" />
         </svg>
       </div>
       <div class="empty__word">{t("empty.word")}</div>
       <p class="empty__sub">{t("empty.sub")}</p>
-      <div class="empty__cards">
-        <button
-          class="startcard startcard--red"
-          type="button"
-          onClick={() => sendMessage(promptRed)}
-        >
-          <span class="startcard__icon">
-            <Icon name="eye" />
-          </span>
-          <span>
-            <span class="startcard__t">{t("empty.red.t")}</span>
-            <span class="startcard__d">{t("empty.red.d")}</span>
-          </span>
-        </button>
-        <button
-          class="startcard startcard--blue"
-          type="button"
-          onClick={() => sendMessage(promptBlue)}
-        >
-          <span class="startcard__icon">
-            <Icon name="zap" />
-          </span>
-          <span>
-            <span class="startcard__t">{t("empty.blue.t")}</span>
-            <span class="startcard__d">{t("empty.blue.d")}</span>
-          </span>
-        </button>
-      </div>
-      <p class="empty__aphorism">
-        {t("empty.cite")}
-        <cite>MORPHEUS</cite>
-      </p>
       <div class="empty__hint">{t("empty.hint")}</div>
     </div>
   );

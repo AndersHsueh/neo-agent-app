@@ -2,10 +2,9 @@
  * features/boot/Boot.tsx — 开机序列（一次性的仪式，可跳过）。
  * 代码雨 → 标记 → NEO 字标 → Agent 身份名变幻 → 格言 → 幕布上提。
  */
-import { useEffect, useRef, useState } from "preact/hooks";
-import { lang, t } from "@/i18n";
-import { pickAphorism } from "@/lib/aphorisms.ts";
-import { morphText, reducedMotion, startRain } from "@/lib/fx.ts";
+import { useEffect, useState } from "preact/hooks";
+import { t } from "@/i18n";
+import { reducedMotion } from "@/lib/fx.ts";
 
 const STEPS = [
   { at: 120, key: "rain" },
@@ -20,8 +19,6 @@ export function Boot({ onDone }: { onDone: () => void }) {
   const [phase, setPhase] = useState<Record<string, boolean>>({});
   const [leaving, setLeaving] = useState(false);
   const [done, setDone] = useState(false);
-  const identity = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (reducedMotion()) {
@@ -29,7 +26,6 @@ export function Boot({ onDone }: { onDone: () => void }) {
       onDone();
       return;
     }
-    const rain = canvas.current ? startRain(canvas.current) : null;
     const timers = STEPS.map((step) =>
       setTimeout(() => {
         if (step.key === "leave") {
@@ -41,17 +37,10 @@ export function Boot({ onDone }: { onDone: () => void }) {
           return;
         }
         setPhase((p) => ({ ...p, [step.key]: true }));
-        if (step.key === "ident" && identity.current) {
-          identity.current.textContent = "Agent: Mr. Andersson";
-          setTimeout(() => {
-            if (identity.current) void morphText(identity.current, "Agent: NEO", 620);
-          }, 360);
-        }
       }, step.at),
     );
     return () => {
       timers.forEach(clearTimeout);
-      rain?.destroy();
     };
   }, [onDone]);
 
@@ -70,19 +59,16 @@ export function Boot({ onDone }: { onDone: () => void }) {
   });
 
   if (done) return null;
-  const aphorism = pickAphorism(0);
-  const quote = lang.value === "zh" ? aphorism.zh : aphorism.en;
 
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: 点击任意处跳过开机动画
     // biome-ignore lint/a11y/useKeyWithClickEvents: 任意按键已在 window 上监听
     <div
-      class={`boot${leaving ? " is-leaving" : ""}${phase.rain ? " is-rain" : ""}${phase.mark ? " is-mark" : ""}${phase.word ? " is-word" : ""}${phase.ident ? " is-ident is-run" : ""}${phase.aphorism ? " is-aph is-skip" : ""}`}
+      class={`boot${leaving ? " is-leaving" : ""}${phase.mark ? " is-mark" : ""}${phase.word ? " is-word" : ""}${phase.ident ? " is-ident is-run" : ""}${phase.aphorism ? " is-aph is-skip" : ""}`}
       onClick={finish}
     >
-      <canvas class="boot__rain" ref={canvas} />
-      <div class="boot__corner boot__corner--l">OPERATOR CONSOLE</div>
-      <div class="boot__corner boot__corner--r">MATRIX · V0.1</div>
+      <div class="boot__corner boot__corner--l">{t("empty.word")}</div>
+      <div class="boot__corner boot__corner--r">{t("boot.version")}</div>
       <div class="boot__inner">
         <div class="boot__mark">
           <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -94,15 +80,8 @@ export function Boot({ onDone }: { onDone: () => void }) {
           <span>E</span>
           <span>O</span>
         </div>
-        <div class="boot__identity" ref={identity} />
-        <div class="boot__aphorism">
-          {phase.aphorism ? (
-            <>
-              <span>{quote}</span>
-              <cite>{aphorism.src}</cite>
-            </>
-          ) : null}
-        </div>
+        <div class="boot__identity">{phase.ident ? t("boot.ident") : ""}</div>
+        <div class="boot__aphorism">{phase.aphorism ? <span>{t("boot.line")}</span> : null}</div>
         <div class="boot__progress">
           <i />
         </div>

@@ -10,7 +10,7 @@
 
 .banner--error {
   background: var(--danger-wash);
-  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.25);
+  box-shadow: inset 0 0 0 1px var(--danger-line);
   color: var(--ink-1);
 }
 
@@ -38,7 +38,7 @@
   gap: 8px;
   padding: 6px 16px;
   background: var(--warn-wash);
-  box-shadow: inset 0 -1px 0 rgba(255, 184, 77, 0.18);
+  box-shadow: inset 0 -1px 0 var(--warn-wash);
   font-family: var(--font-mono);
   font-size: 10.5px;
   color: var(--warn);
@@ -50,8 +50,7 @@
   display: grid;
   place-items: center;
   padding: 24px;
-  background:
-    radial-gradient(900px 520px at 50% 0%, rgba(94, 224, 163, 0.06), transparent 65%), var(--void);
+  background: var(--void);
 }
 
 .login__card {
@@ -77,7 +76,7 @@
   width: 44px;
   height: 44px;
   color: var(--accent);
-  filter: drop-shadow(0 0 20px rgba(94, 224, 163, 0.25));
+  filter: none;
 }
 
 .login__mark svg {
@@ -122,7 +121,7 @@
   padding: 8px 10px;
   border-radius: var(--r-2);
   background: var(--danger-wash);
-  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.25);
+  box-shadow: inset 0 0 0 1px var(--danger-line);
   font-size: var(--fs-sm);
   color: var(--danger);
 }
@@ -256,10 +255,11 @@
 }
 
 .gallery__head h1 {
-  font-size: var(--fs-xl);
-  font-weight: 550;
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 500;
   color: var(--ink-1);
-  letter-spacing: var(--tracking-tight);
+  letter-spacing: -0.02em;
 }
 
 .gallery__back {
@@ -278,9 +278,10 @@
 }
 
 .gallery__section h2 {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.14em;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-4);
 }
@@ -317,5 +318,5 @@
 }
 
 .tool__body {
-  background: rgba(2, 4, 3, 0.55);
+  background: var(--surface-2);
 }

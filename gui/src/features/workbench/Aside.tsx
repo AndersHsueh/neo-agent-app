@@ -196,17 +196,17 @@ export function Aside() {
             <div class="linkrow">
               <Icon name="memory" />
               <span class="linkrow__label">{t("rail.memory")}</span>
-              <b>128</b>
+              <b class="dim">—</b>
             </div>
             <div class="linkrow">
               <Icon name="wiki" />
               <span class="linkrow__label">{t("rail.wiki")}</span>
-              <b>24</b>
+              <b class="dim">—</b>
             </div>
             <div class="linkrow">
               <Icon name="skills" />
               <span class="linkrow__label">{t("rail.skills")}</span>
-              <b>12</b>
+              <b class="dim">—</b>
             </div>
           </div>
         </section>

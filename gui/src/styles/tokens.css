@@ -1,63 +1,82 @@
 /* =========================================================================
-   NEO · OPERATOR CONSOLE — 令牌层
-   自有色板：冷调石板灰中性 + 磷光青瓷绿。不借用任何第三方设计系统。
-   动效四档 100/180/280/420ms，全部无过冲 —— 工具不表演，只确认。
+   NEO · 暖纸 — 令牌层
+   燕麦 / 米白表面，炭黑文字，陶土橙只作点缀。衬线标题，无衬线正文。
+   默认无扫描线、无颗粒、无磷光。动效四档 100/180/280/420ms，短而安静。
    ========================================================================= */
 
 :root {
-  /* ---- 中性：石板黑，绿偏 2°，不是纯灰 ---------------------------------- */
-  --void: #050807;
-  --surface-0: #070b0a;
-  --surface-1: #0a100e;
-  --surface-2: #0d1512;
-  --surface-3: #111b17;
-  --surface-4: #16231e;
-  --surface-5: #1c2b25;
+  /* ---- 表面：燕麦纸，从页底到抬起的卡片 -------------------------------- */
+  --void: #f3eee6;
+  --surface-0: #efe8dc;
+  --surface-1: #f7f3ec;
+  --surface-2: #fbf8f3;
+  --surface-3: #e7dfd2;
+  --surface-4: #ddd4c6;
+  --surface-5: #d3c8b8;
 
-  /* ---- 描边：同一条磷光绿，只改 alpha ---------------------------------- */
-  --line-0: rgba(126, 240, 178, 0.055);
-  --line-1: rgba(126, 240, 178, 0.09);
-  --line-2: rgba(126, 240, 178, 0.15);
-  --line-3: rgba(126, 240, 178, 0.26);
-  --line-4: rgba(126, 240, 178, 0.42);
+  /* ---- 描边：炭黑发丝线，只改 alpha ------------------------------------ */
+  --line-0: rgba(43, 37, 34, 0.06);
+  --line-1: rgba(43, 37, 34, 0.1);
+  --line-2: rgba(43, 37, 34, 0.16);
+  --line-3: rgba(43, 37, 34, 0.28);
+  --line-4: rgba(43, 37, 34, 0.42);
 
-  /* ---- 墨色：偏绿的暖白，不是 #fff ------------------------------------ */
-  --ink-1: #dbe9e1;
-  --ink-2: #a9bfb2;
-  --ink-3: #84998c;
-  --ink-4: #6b8579; /* 4.8:1 on #0a100e — 标签层下限 */
-  --ink-5: #55695f; /* 仅用于非文字装饰；不承载可读文本 */
+  /* ---- 墨色：炭黑。ink-4 在 #f7f3ec 上约 5.9:1，是标签层下限 ----------- */
+  --ink-1: #2b2522;
+  --ink-2: #4a433c;
+  --ink-3: #5c534c;
+  --ink-4: #655c54;
+  --ink-5: #6e655c;
 
-  /* ---- 主强调：青瓷绿（chrome 用，不进档位语义） ----------------------- */
-  --accent: #5ee0a3;
-  --accent-hover: #7cf0bb;
-  --accent-press: #45c78b;
-  --accent-dim: #2c6b50;
-  --accent-wash: rgba(94, 224, 163, 0.1);
-  --accent-wash-strong: rgba(94, 224, 163, 0.17);
-  --accent-line: rgba(94, 224, 163, 0.34);
+  /* ---- 主强调：陶土。大色块与链接都过 4.5:1；不拿来铺背景 -------------- */
+  --accent: #a24a32;
+  --accent-hover: #8e4030;
+  --accent-press: #743322;
+  --accent-dim: #8a5344;
+  --accent-wash: rgba(162, 74, 50, 0.1);
+  --accent-wash-strong: rgba(162, 74, 50, 0.16);
+  --accent-line: rgba(142, 64, 48, 0.45);
+  --on-accent: #fbf7f1;
 
-  /* ---- 档位语义：直接继承 neo CLI（深思红/平衡绿/快速蓝/默认冰绿） ---- */
-  --tier-deep: #ff4a3d;
-  --tier-balanced: #2ef07a;
-  --tier-fast: #35c9ff;
-  --tier-default: #b6ffc4;
-  --tier-deep-wash: rgba(255, 74, 61, 0.13);
-  --tier-balanced-wash: rgba(46, 240, 122, 0.12);
-  --tier-fast-wash: rgba(53, 201, 255, 0.12);
-  --tier-default-wash: rgba(182, 255, 196, 0.13);
+  /* ---- 档位：同一套角色，压成纸上可读的墨色，不再用霓虹 ---------------- */
+  --tier-deep: #b23b32;
+  --tier-balanced: #3d6b4a;
+  --tier-fast: #3a627c;
+  --tier-default: #6a5e54;
+  --tier-deep-wash: rgba(178, 59, 50, 0.12);
+  --tier-balanced-wash: rgba(61, 107, 74, 0.12);
+  --tier-fast-wash: rgba(58, 98, 124, 0.12);
+  --tier-default-wash: rgba(106, 94, 84, 0.12);
 
   /* ---- 状态 ----------------------------------------------------------- */
-  --ok: #2ef07a;
-  --ok-wash: rgba(46, 240, 122, 0.12);
-  --warn: #ffb84d;
-  --warn-wash: rgba(255, 184, 77, 0.12);
-  --danger: #ff5c52;
-  --danger-wash: rgba(255, 92, 82, 0.12);
-  --info: #35c9ff;
-  --info-wash: rgba(53, 201, 255, 0.12);
+  --ok: #2f6b45;
+  --ok-wash: rgba(47, 107, 69, 0.12);
+  --warn: #8f5a22;
+  --warn-wash: rgba(143, 90, 34, 0.12);
+  --danger: #b42318;
+  --danger-wash: rgba(180, 35, 24, 0.1);
+  --danger-line: rgba(180, 35, 24, 0.35);
+  --info: #3a627c;
+  --info-wash: rgba(58, 98, 124, 0.1);
+  --info-line: rgba(58, 98, 124, 0.35);
+  --warn-line: rgba(143, 90, 34, 0.35);
 
-  /* ---- 字体 ----------------------------------------------------------- */
+  /* ---- 代码 / 遮罩（纸上的浅槽，不是终端黑底） ------------------------- */
+  --code-bg: #f6f0e6;
+  --code-ink: #3f3833;
+  --tok-k: #9a4632;
+  --tok-s: #6d4b2e;
+  --tok-n: #2f5d45;
+  --tok-c: #8a7d72;
+  --tok-f: #2b2522;
+  --tok-p: #6b625b;
+  --tok-t: #3a627c;
+  --scrim: rgba(43, 37, 34, 0.4);
+
+  /* ---- 字体：标题衬线，正文无衬线，代码等宽 --------------------------- */
+  --font-serif:
+    "Iowan Old Style", "Palatino Linotype", Palatino, "Songti SC", "Noto Serif SC",
+    "Source Han Serif SC", serif;
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue", "PingFang SC", "Hiragino Sans GB",
     "Noto Sans SC", "Microsoft YaHei", sans-serif;
@@ -92,13 +111,13 @@
   --s8: 40px;
   --s9: 56px;
 
-  /* ---- 圆角：8px 基准，比阅读型 UI 更收 ------------------------------- */
-  --r-1: 4px;
-  --r-2: 6px;
-  --r-3: 8px;
-  --r-4: 12px;
-  --r-5: 16px;
-  --r-6: 22px;
+  /* ---- 圆角：软一点，仍是工作台而不是卡片堆 ----------------------------- */
+  --r-1: 6px;
+  --r-2: 8px;
+  --r-3: 10px;
+  --r-4: 14px;
+  --r-5: 18px;
+  --r-6: 24px;
   --r-pill: 999px;
 
   /* ---- 动效：四档，无过冲弹簧 ----------------------------------------- */
@@ -111,11 +130,11 @@
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-in: cubic-bezier(0.45, 0, 1, 1);
 
-  /* ---- 阴影：只用暗投影，光晕只给焦点 --------------------------------- */
-  --shadow-1: 0 1px 0 rgba(0, 0, 0, 0.55), 0 10px 28px -16px rgba(0, 0, 0, 0.9);
-  --shadow-2: 0 1px 0 rgba(0, 0, 0, 0.6), 0 22px 60px -24px rgba(0, 0, 0, 0.95);
-  --glow-focus: 0 0 0 1px var(--accent-line), 0 0 20px -6px rgba(94, 224, 163, 0.4);
-  --glow-live: 0 0 18px -6px rgba(46, 240, 122, 0.45);
+  /* ---- 阴影：几乎没有。焦点是 1px 环，没有外发光 ----------------------- */
+  --shadow-1: 0 1px 0 rgba(43, 37, 34, 0.04);
+  --shadow-2: 0 16px 40px -28px rgba(43, 37, 34, 0.22);
+  --glow-focus: 0 0 0 1px var(--accent-line);
+  --glow-live: none;
 
   /* ---- 结构尺寸 ------------------------------------------------------- */
   --rail-w: 56px;
@@ -124,9 +143,9 @@
   --topbar-h: 56px;
   --stream-max: 744px;
 
-  /* ---- 材质 ----------------------------------------------------------- */
-  --scan-op: 0.5;
-  --grain-op: 0.028;
+  /* ---- 材质：默认关闭。设置里显式打开才有极淡扫描线 / 颗粒 --------- */
+  --scan-op: 0;
+  --grain-op: 0;
 
   --z-rail: 10;
   --z-sidebar: 20;
@@ -143,13 +162,21 @@
   --lh-snug: 1.45;
 }
 
-/* 用户关掉扫描线/颗粒（设置页可切，原型里的“材质开关”） */
+/* 默认关。只有 data-*=on 才打开，而且保持很淡。 */
 :root[data-scanlines="off"] {
   --scan-op: 0;
 }
 
 :root[data-grain="off"] {
   --grain-op: 0;
+}
+
+:root[data-scanlines="on"] {
+  --scan-op: 0.35;
+}
+
+:root[data-grain="on"] {
+  --grain-op: 0.035;
 }
 
 /* 降低动效：不是“关掉”，而是把位移与装饰性动画摘掉，只留 100/180 的透明度 */

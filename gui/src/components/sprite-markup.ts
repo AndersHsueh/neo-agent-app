@@ -4,9 +4,8 @@
  */
 export const SPRITE_MARKUP = String.raw`<defs>
     <symbol id="i-logo" viewBox="0 0 24 24">
-      <path d="M12 2.7l7.7 4.4v9l-7.7 4.4-7.7-4.4v-9z" />
-      <circle cx="12" cy="11.9" r="2.5" />
-      <path d="M12 9.4V5.6M12 18.4v-3.8" />
+      <path d="M6.2 7.2 12.2 12 6.2 16.8" />
+      <path d="M14.4 9.2h4.2v5.6h-4.2z" />
     </symbol>
     <symbol id="i-plus-cell" viewBox="0 0 24 24">
       <rect x="3.6" y="3.6" width="16.8" height="16.8" rx="4.2" />

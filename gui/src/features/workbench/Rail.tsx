@@ -36,7 +36,7 @@ export function Rail() {
             }}
           >
             <Icon name={item.icon} />
-            {item.view === "peers" ? (
+            {item.view === "peers" && store.peers.value.length > 0 ? (
               <span class="railbtn__badge">{store.peers.value.length}</span>
             ) : null}
           </button>

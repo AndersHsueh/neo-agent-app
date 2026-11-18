@@ -20,7 +20,7 @@ import {
   renameActive,
   sendAttachmentsViaAction,
   sendMessage,
-  waitTurnDone,
+  waitTurnOrOutage,
 } from "./helpers";
 
 test.describe("真实 Hub 联调 · 附件", () => {
@@ -49,7 +49,14 @@ test.describe("真实 Hub 联调 · 附件", () => {
     // 预览被清空
     await expect(page.locator('.composer [data-role="attach-preview"]')).toHaveCount(0);
 
-    await waitTurnDone(page);
+    const settled = await waitTurnOrOutage(page);
+    if (settled.outage) {
+      test.info().annotations.push({
+        type: "environment",
+        description: `provider connection failure (environment, not a GUI failure): ${settled.outage}`,
+      });
+      return;
+    }
     await expect(page.locator(".stream .stats")).toHaveCount(1);
 
     await renameActive(page, `e2e-attach-one-${Date.now()}`);

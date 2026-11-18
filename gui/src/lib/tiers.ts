@@ -20,5 +20,4 @@ export const tierShort = (tier: Tier): string => t(`tier.${TIER_KEYS[tier]}.shor
 export const modeName = (mode: PermissionMode): string => t(`mode.${mode}`);
 export const tierCssVar = (tier: Tier): string => `var(--tier-${TIER_KEYS[tier]})`;
 
-export const agentNameForTier = (tier: Tier): string =>
-  tier === "deep_reasoning" ? "Mr. Andersson" : "NEO";
+export const agentNameForTier = (_tier: Tier): string => "NEO";

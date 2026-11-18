@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 import { Icon } from "@/components/Icon.tsx";
-import { lang, t } from "@/i18n";
-import { pickAphorism } from "@/lib/aphorisms.ts";
+import { t } from "@/i18n";
 import {
   dataUrlOf,
   MAX_IMAGES,
@@ -16,7 +15,6 @@ import { activeMeta, activeSession, pendingQuestion, pushToast, store } from "@/
 export function Composer() {
   const [text, setText] = useState("");
   const [images, setImages] = useState<PendingImage[]>([]);
-  const [aphorismIndex, setAphorismIndex] = useState(0);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const fileInput = useRef<HTMLInputElement>(null);
   const state = activeSession.value;
@@ -26,11 +24,6 @@ export function Composer() {
   const context = state?.context;
   const pct = context ? Math.min(100, Math.round((context.used / context.limit) * 100)) : 0;
   const supportsImages = store.capabilities.value.includes("attachments.image");
-
-  useEffect(() => {
-    const timer = setInterval(() => setAphorismIndex((i) => i + 1), 26_000);
-    return () => clearInterval(timer);
-  }, []);
 
   useEffect(() => {
     const node = textarea.current;
@@ -68,9 +61,6 @@ export function Composer() {
     setImages([]);
     void refreshUsage("session");
   };
-
-  const aphorism = pickAphorism(aphorismIndex);
-  const quote = lang.value === "zh" ? aphorism.zh : aphorism.en;
 
   return (
     <div class="composer-dock">
@@ -193,7 +183,7 @@ export function Composer() {
         </div>
       </div>
       <div class="underbar">
-        <span class="underbar__aphorism">{quote}</span>
+        <span class="underbar__aphorism">{t("composer.idle.aphorism")}</span>
         <span class="underbar__hint mono">
           {meta?.model ?? "—"} · {tierName(meta?.tier ?? "balanced")} ·{" "}
           {t(`mode.${store.mode.value}`)}
@@ -204,7 +194,7 @@ export function Composer() {
 }
 
 function alertNotWired(label: string) {
-  const event = new CustomEvent("neo:toast", { detail: { text: label, sub: "尚未接入" } });
+  const event = new CustomEvent("neo:toast", { detail: { text: label, sub: t("toast.proto") } });
   window.dispatchEvent(event);
 }
 

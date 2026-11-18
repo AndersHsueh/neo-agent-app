@@ -15,8 +15,8 @@ const storedMotion = localStorage.getItem("neo.motion");
 document.documentElement.dataset.motion =
   storedMotion ??
   (window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "reduced" : "full");
-document.documentElement.dataset.scanlines = "on";
-document.documentElement.dataset.grain = "on";
+document.documentElement.dataset.scanlines = "off";
+document.documentElement.dataset.grain = "off";
 document.documentElement.lang = lang.value === "zh" ? "zh-Hans" : "en";
 
 if (import.meta.env.DEV) {

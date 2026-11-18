@@ -66,7 +66,7 @@
 
 .chipbtn.is-warn {
   color: var(--warn);
-  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.26);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
 }
 
 .btn {
@@ -93,9 +93,9 @@
 
 .btn--primary {
   background: var(--accent);
-  color: #04120a;
+  color: var(--on-accent);
   font-weight: 600;
-  box-shadow: 0 0 22px -10px rgba(94, 224, 163, 0.7);
+  box-shadow: none;
 }
 
 .btn--primary:hover {
@@ -119,12 +119,12 @@
 
 .btn--danger {
   background: var(--danger-wash);
-  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.3);
+  box-shadow: inset 0 0 0 1px var(--danger-line);
   color: var(--danger);
 }
 
 .btn--danger:hover {
-  background: rgba(255, 92, 82, 0.18);
+  background: var(--danger-wash);
 }
 
 .btn--quiet {
@@ -248,7 +248,7 @@
   width: 2px;
   border-radius: 0 2px 2px 0;
   background: var(--accent);
-  box-shadow: 0 0 10px -1px rgba(94, 224, 163, 0.8);
+  box-shadow: none;
 }
 
 .session__row {
@@ -270,7 +270,7 @@
 }
 
 .session.is-active .session__title {
-  color: #e8f6ee;
+  color: var(--ink-1);
   font-weight: 550;
 }
 
@@ -319,7 +319,7 @@
   height: 5px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 8px rgba(94, 224, 163, 0.8);
+  box-shadow: none;
 }
 
 .session.is-active .session__unread {
@@ -508,16 +508,16 @@
   border-radius: var(--r-4) var(--r-4) var(--r-1) var(--r-4);
   background: linear-gradient(180deg, var(--surface-3), var(--surface-2));
   box-shadow: inset 0 0 0 1px var(--line-1);
-  color: #e2efe8;
+  color: var(--ink-1);
   font-size: var(--fs-lg);
   line-height: var(--lh-normal);
 }
 
 .msg--user .msg__body code {
-  background: rgba(94, 224, 163, 0.09);
+  background: var(--accent-wash);
   border-radius: 3px;
   padding: 1px 4px;
-  color: #b8f0d2;
+  color: var(--accent-press);
 }
 
 /* 助手正文：块式排版，不套气泡 */
@@ -540,7 +540,7 @@
 }
 
 .prose strong {
-  color: #eaf8ef;
+  color: var(--ink-1);
   font-weight: 600;
 }
 
@@ -555,7 +555,7 @@
   border-radius: 4px;
   background: var(--surface-3);
   box-shadow: inset 0 0 0 1px var(--line-1);
-  color: #c8f2da;
+  color: var(--code-ink);
 }
 
 .prose ul,
@@ -587,7 +587,7 @@
 /* 代码块 */
 .codeblock {
   border-radius: var(--r-3);
-  background: #050908;
+  background: var(--code-bg);
   box-shadow: inset 0 0 0 1px var(--line-1);
   overflow: hidden;
   margin: 10px 0;
@@ -599,7 +599,7 @@
   gap: 8px;
   padding: 6px 10px;
   border-bottom: 1px solid var(--line-0);
-  background: rgba(17, 27, 23, 0.5);
+  background: var(--surface-3);
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.06em;
@@ -619,31 +619,31 @@
   font-family: var(--font-mono);
   font-size: 11.5px;
   line-height: 1.72;
-  color: #c6d8ce;
+  color: var(--code-ink);
   tab-size: 2;
 }
 
 .tok-k {
-  color: #8ce8bd;
+  color: var(--tok-k);
 }
 .tok-s {
-  color: #d7e8a4;
+  color: var(--tok-s);
 }
 .tok-n {
-  color: #8ec9ff;
+  color: var(--tok-n);
 }
 .tok-c {
-  color: #4d6157;
+  color: var(--tok-c);
   font-style: italic;
 }
 .tok-f {
-  color: #d6ecdf;
+  color: var(--tok-f);
 }
 .tok-p {
-  color: #77907f;
+  color: var(--tok-p);
 }
 .tok-t {
-  color: #a8d8f0;
+  color: var(--tok-t);
 }
 
 /* 附件/引用 chip */
@@ -678,7 +678,7 @@
 /* ---------------------------------------------------------------------- */
 .think {
   border-radius: var(--r-3);
-  background: rgba(13, 21, 18, 0.55);
+  background: var(--surface-2);
   box-shadow: inset 0 0 0 1px var(--line-0);
   overflow: hidden;
 }
@@ -700,7 +700,7 @@
 
 .think__toggle:hover {
   color: var(--ink-2);
-  background: rgba(22, 35, 30, 0.5);
+  background: var(--surface-3);
 }
 
 .think__chev {
@@ -777,7 +777,7 @@
 
 .think__body .prose code {
   color: var(--ink-2);
-  background: rgba(94, 224, 163, 0.06);
+  background: var(--accent-wash);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -795,16 +795,16 @@
 }
 
 .tool.is-running {
-  background: linear-gradient(180deg, rgba(22, 35, 30, 0.7), var(--surface-1));
+  background: linear-gradient(180deg, var(--surface-3), var(--surface-1));
   box-shadow: inset 0 0 0 1px var(--line-2);
 }
 
 .tool.is-error {
-  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.28);
+  box-shadow: inset 0 0 0 1px var(--danger-line);
 }
 
 .tool.is-denied {
-  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.24);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
 }
 
 .tool__head {
@@ -932,7 +932,7 @@
 .tool__body {
   display: none;
   border-top: 1px solid var(--line-0);
-  background: #050908;
+  background: var(--code-bg);
 }
 
 .tool.is-open .tool__body {
@@ -988,8 +988,8 @@
 /* ---------------------------------------------------------------------- */
 .approve {
   border-radius: var(--r-4);
-  background: linear-gradient(180deg, rgba(255, 184, 77, 0.055), rgba(13, 21, 18, 0.6) 62%);
-  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.26);
+  background: linear-gradient(180deg, var(--warn-wash), var(--surface-1) 62%);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
   overflow: hidden;
   animation: rise-in var(--d3) var(--ease-out) both;
 }
@@ -1008,7 +1008,7 @@
   border-radius: var(--r-2);
   background: var(--warn-wash);
   color: var(--warn);
-  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.3);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
   flex: 0 0 auto;
 }
 
@@ -1085,7 +1085,7 @@
 
 .diff {
   border-top: 1px solid var(--line-0);
-  background: #050908;
+  background: var(--code-bg);
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.7;
@@ -1101,7 +1101,7 @@
   border-bottom: 1px solid var(--line-0);
   color: var(--ink-3);
   font-size: 10px;
-  background: rgba(17, 27, 23, 0.42);
+  background: var(--surface-3);
   position: sticky;
   top: 0;
 }
@@ -1123,7 +1123,7 @@
 .diff__hunk {
   padding: 4px 12px;
   color: var(--ink-4);
-  background: rgba(53, 201, 255, 0.035);
+  background: var(--info-wash);
   font-size: 10px;
 }
 
@@ -1134,13 +1134,13 @@
 }
 
 .diff__line--add {
-  background: rgba(46, 240, 122, 0.075);
-  box-shadow: inset 2px 0 0 rgba(46, 240, 122, 0.55);
+  background: var(--ok-wash);
+  box-shadow: inset 2px 0 0 var(--ok);
 }
 
 .diff__line--del {
-  background: rgba(255, 92, 82, 0.06);
-  box-shadow: inset 2px 0 0 rgba(255, 92, 82, 0.45);
+  background: var(--danger-wash);
+  box-shadow: inset 2px 0 0 var(--danger);
 }
 
 .diff__ln {
@@ -1165,10 +1165,10 @@
   color: var(--danger);
 }
 .diff__line--add .diff__ln {
-  color: rgba(46, 240, 122, 0.45);
+  color: var(--ok);
 }
 .diff__line--del .diff__ln {
-  color: rgba(255, 92, 82, 0.4);
+  color: var(--danger);
 }
 
 .diff__code {
@@ -1489,8 +1489,8 @@
 
 .composer.is-ready .sendbtn {
   background: var(--accent);
-  color: #04120a;
-  box-shadow: 0 0 24px -8px rgba(94, 224, 163, 0.75);
+  color: var(--on-accent);
+  box-shadow: none;
 }
 
 .composer.is-ready .sendbtn:hover {
@@ -1500,7 +1500,7 @@
 .composer.is-working .sendbtn {
   background: var(--surface-3);
   color: var(--warn);
-  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.3);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
 }
 
 .composer__bar {
@@ -1584,7 +1584,7 @@
   padding: 8px 11px;
   border-radius: var(--r-3);
   background: var(--warn-wash);
-  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.22);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
   font-size: var(--fs-sm);
   color: var(--ink-1);
   animation: rise-in var(--d3) var(--ease-out) both;
@@ -1724,7 +1724,7 @@
 
 .banner--info {
   background: var(--info-wash);
-  box-shadow: inset 0 0 0 1px rgba(53, 201, 255, 0.24);
+  box-shadow: inset 0 0 0 1px var(--info-line);
 }
 
 .banner--info svg.icon,
@@ -1734,7 +1734,7 @@
 
 .banner--warn {
   background: var(--warn-wash);
-  box-shadow: inset 0 0 0 1px rgba(255, 184, 77, 0.24);
+  box-shadow: inset 0 0 0 1px var(--warn-line);
 }
 
 .banner--warn svg.icon,
@@ -1744,7 +1744,7 @@
 
 .banner--error {
   background: var(--danger-wash);
-  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.26);
+  box-shadow: inset 0 0 0 1px var(--danger-line);
 }
 
 .banner--error svg.icon,
@@ -1781,7 +1781,7 @@
   margin: 0;
   padding: 9px 14px;
   border-top: 1px solid var(--line-0);
-  background: #050908;
+  background: var(--code-bg);
   font-family: var(--font-mono);
   font-size: 11px;
   line-height: 1.7;
@@ -1805,7 +1805,7 @@
   gap: 6px;
   padding: 6px 10px;
   border-bottom: 1px solid var(--line-0);
-  background: rgba(17, 27, 23, 0.42);
+  background: var(--surface-3);
   font-family: var(--font-mono);
   font-size: 9.5px;
   letter-spacing: 0.08em;
@@ -1927,7 +1927,7 @@
 /* ---- 命令面板：结果区 + 命令项描述 ------------------------------------ */
 .palette__result {
   border-top: 1px solid var(--line-0);
-  background: rgba(5, 8, 7, 0.5);
+  background: var(--surface-2);
   max-height: min(34vh, 300px);
   overflow-y: auto;
   padding: 8px;
@@ -1954,7 +1954,7 @@
 }
 
 .cmdresult.is-error {
-  box-shadow: inset 0 0 0 1px rgba(255, 92, 82, 0.3);
+  box-shadow: inset 0 0 0 1px var(--danger-line);
 }
 
 .cmdresult__head {
@@ -2233,7 +2233,7 @@
   display: grid;
   place-items: center;
   border-radius: var(--r-pill);
-  background: rgba(5, 8, 7, 0.82);
+  background: var(--surface-0);
   box-shadow: inset 0 0 0 1px var(--line-2);
   color: var(--ink-2);
   transition:
@@ -2286,7 +2286,7 @@
 .md h4,
 .md h5,
 .md h6 {
-  color: #eaf8ef;
+  color: var(--ink-1);
   font-weight: 600;
   letter-spacing: 0.01em;
   line-height: 1.35;
@@ -2358,7 +2358,7 @@
   margin: 0;
   padding: 10px 12px;
   border-radius: var(--r-3);
-  background: #050908;
+  background: var(--code-bg);
   box-shadow: inset 0 0 0 1px var(--line-1);
   overflow: auto;
   font-family: var(--font-mono);
@@ -2370,7 +2370,7 @@
   padding: 0;
   background: none;
   box-shadow: none;
-  color: #c8f2da;
+  color: var(--code-ink);
   font-size: inherit;
 }
 

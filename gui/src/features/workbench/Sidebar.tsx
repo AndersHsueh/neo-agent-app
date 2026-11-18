@@ -60,15 +60,17 @@ export function Sidebar() {
       </div>
 
       <footer class="sidebar__foot">
-        <div class="peers">
-          {store.peers.value.map((peer) => (
-            <div class="peer" key={peer.name}>
-              <i class={`led ${STATUS_LED[peer.status] ?? "led--dim"}`} />
-              <span class="peer__name">{peer.name}</span>
-              <span class="peer__act">{peer.activity[lang.value]}</span>
-            </div>
-          ))}
-        </div>
+        {store.peers.value.length > 0 ? (
+          <div class="peers">
+            {store.peers.value.map((peer) => (
+              <div class="peer" key={peer.name}>
+                <i class={`led ${STATUS_LED[peer.status] ?? "led--dim"}`} />
+                <span class="peer__name">{peer.name}</span>
+                <span class="peer__act">{peer.activity[lang.value]}</span>
+              </div>
+            ))}
+          </div>
+        ) : null}
         <div class="hubmeta">
           <i class="led led--live" />
           <span class="mono">HUB · {endpointLabel(store.endpoint.value)}</span>
@@ -134,60 +136,38 @@ function AuxPanel({ view }: { view: Exclude<SidebarView, "sessions"> }) {
     wiki: "nav.wikiHint",
     skills: "nav.skillsHint",
   } as const;
+  const emptyKey = {
+    peers: "nav.peersEmpty",
+    memory: "nav.memoryEmpty",
+    wiki: "nav.wikiEmpty",
+    skills: "nav.skillsEmpty",
+  } as const;
   if (view === "peers") {
+    const peers = store.peers.value;
     return (
       <>
-        <p class="panelhint">{t(hintKey[view])}</p>
-        {store.peers.value.map((peer) => (
-          <div class="panelrow" key={peer.name}>
-            <i class={`led ${STATUS_LED[peer.status] ?? "led--dim"}`} />
-            <span class="panelrow__main">
-              {peer.name}
-              <span class="panelrow__sub">{peer.activity[lang.value]}</span>
-            </span>
-            <span class="panelrow__meta">{peer.age}</span>
-          </div>
-        ))}
+        <p class="panelhint">{t(hintKey.peers)}</p>
+        {peers.length === 0 ? (
+          <p class="panelhint">{t(emptyKey.peers)}</p>
+        ) : (
+          peers.map((peer) => (
+            <div class="panelrow" key={peer.name}>
+              <i class={`led ${STATUS_LED[peer.status] ?? "led--dim"}`} />
+              <span class="panelrow__main">
+                {peer.name}
+                <span class="panelrow__sub">{peer.activity[lang.value]}</span>
+              </span>
+              <span class="panelrow__meta">{peer.age}</span>
+            </div>
+          ))
+        )}
       </>
     );
   }
-  const rows =
-    view === "memory"
-      ? [
-          {
-            title: lang.value === "zh" ? "别名归一化放在分发入口" : "Normalize aliases at dispatch",
-            meta: "2026-10-27",
-          },
-          { title: "login shell resets PATH", meta: "2026-10-25" },
-          {
-            title:
-              lang.value === "zh"
-                ? "测试不得依赖开发机 locale"
-                : "tests must not depend on dev locale",
-            meta: "2026-10-24",
-          },
-        ]
-      : view === "wiki"
-        ? [
-            { title: "neo-开发驿站", meta: "42" },
-            { title: "shell 解释器写死", meta: "18" },
-            { title: "空正文自动重试", meta: "12" },
-          ]
-        : [
-            { title: "coding", meta: "core" },
-            { title: "minimax-docx", meta: "on demand" },
-            { title: "web-perf", meta: "on demand" },
-          ];
   return (
     <>
       <p class="panelhint">{t(hintKey[view])}</p>
-      {rows.map((row) => (
-        <div class="panelrow" key={row.title}>
-          <Icon name={view === "memory" ? "memory" : view === "wiki" ? "wiki" : "skills"} />
-          <span class="panelrow__main">{row.title}</span>
-          <span class="panelrow__meta">{row.meta}</span>
-        </div>
-      ))}
+      <p class="panelhint">{t(emptyKey[view])}</p>
     </>
   );
 }

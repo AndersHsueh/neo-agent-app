@@ -31,7 +31,18 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "off",
   },
-  projects: [{ name: "chrome-hub", use: { ...devices["Desktop Chrome"], channel: "chrome" } }],
+  projects: [
+    {
+      name: "gui",
+      grepInvert: /@llm/,
+      use: { ...devices["Desktop Chrome"], channel: "chrome" },
+    },
+    {
+      name: "llm",
+      grep: /@llm/,
+      use: { ...devices["Desktop Chrome"], channel: "chrome" },
+    },
+  ],
   webServer: {
     // 只起 Vite；Hub 由外部提供（测试只读 ~/.neo/run/core.json）。
     command: "bun x vite --port 5296 --strictPort",

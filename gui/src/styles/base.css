@@ -31,8 +31,7 @@ body {
   overflow: hidden;
 }
 
-/* 屏幕材质：左上角极淡的磷光漫射 + 扫描线 + 颗粒。
-   三者都必须是“看不见的”，只在近距离停留时才察觉。 */
+/* 扫描线与颗粒默认透明。只有设置显式打开时才看得到，而且很淡。 */
 body::before {
   content: "";
   position: fixed;
@@ -60,16 +59,9 @@ body::after {
   background-image: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
 }
 
-/* 全局底光：一个极弱的绿光斑，压制纯黑的廉价感 */
+/* 纸面不再铺装饰性光斑。 */
 .app::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(1100px 640px at 16% -14%, rgba(94, 224, 163, 0.06), transparent 62%),
-    radial-gradient(900px 600px at 88% 108%, rgba(53, 201, 255, 0.035), transparent 60%);
+  content: none;
 }
 
 h1,
@@ -125,8 +117,22 @@ samp {
 }
 
 ::selection {
-  background: rgba(94, 224, 163, 0.22);
-  color: #f2fff8;
+  background: var(--accent-wash-strong);
+  color: var(--ink-1);
+}
+
+h1,
+h2,
+h3,
+.sessionhead__title,
+.empty__word,
+.gallery__head h1,
+.boot__word,
+.login__name,
+.md h1,
+.md h2,
+.md h3 {
+  font-family: var(--font-serif);
 }
 
 /* ---- 焦点：只在键盘导航时出现，一个 1px 环 + 极弱外发光 ----------------- */
@@ -184,10 +190,10 @@ samp {
 }
 
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: var(--tracking-cap);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--ink-3);
   line-height: 1;
@@ -262,24 +268,18 @@ svg.icon--lg {
 
 .led--live {
   background: var(--ok);
-  box-shadow:
-    0 0 0 3px rgba(46, 240, 122, 0.08),
-    0 0 10px -1px rgba(46, 240, 122, 0.6);
+  box-shadow: 0 0 0 3px var(--ok-wash);
   animation: led-breathe 3.6s var(--ease-in-out) infinite;
 }
 
 .led--warn {
   background: var(--warn);
-  box-shadow:
-    0 0 0 3px rgba(255, 184, 77, 0.08),
-    0 0 10px -1px rgba(255, 184, 77, 0.5);
+  box-shadow: 0 0 0 3px var(--warn-wash);
 }
 
 .led--danger {
   background: var(--danger);
-  box-shadow:
-    0 0 0 3px rgba(255, 92, 82, 0.08),
-    0 0 10px -1px rgba(255, 92, 82, 0.5);
+  box-shadow: 0 0 0 3px var(--danger-wash);
 }
 
 .led--dim {

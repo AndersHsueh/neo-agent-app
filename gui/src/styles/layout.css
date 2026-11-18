@@ -88,7 +88,7 @@
   width: 2px;
   border-radius: 0 2px 2px 0;
   background: var(--accent);
-  box-shadow: 0 0 10px -1px rgba(94, 224, 163, 0.7);
+  box-shadow: none;
 }
 
 .railbtn--brand {
@@ -166,7 +166,7 @@
   flex-direction: column;
   padding: 12px 10px 10px;
   border-right: 1px solid var(--line-0);
-  background: linear-gradient(180deg, rgba(10, 16, 14, 0.55), transparent 240px);
+  background: var(--surface-0);
 }
 
 .sidebar__head {
@@ -279,11 +279,7 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(
-    760px 320px at 50% -120px,
-    rgba(94, 224, 163, 0.045),
-    transparent 70%
-  );
+  background: var(--void);
 }
 
 .topbar {
@@ -296,7 +292,7 @@
   gap: 12px;
   padding: 0 16px 0 18px;
   border-bottom: 1px solid var(--line-0);
-  background: linear-gradient(180deg, rgba(7, 11, 10, 0.92), rgba(7, 11, 10, 0.72));
+  background: var(--surface-0);
   backdrop-filter: blur(12px) saturate(1.15);
   -webkit-backdrop-filter: blur(12px) saturate(1.15);
 }
@@ -393,7 +389,7 @@
 
 .agent.is-working .agent__name {
   color: var(--tier-balanced);
-  text-shadow: 0 0 18px rgba(46, 240, 122, 0.28);
+  text-shadow: none;
 }
 
 .sessionhead {
@@ -405,6 +401,7 @@
 }
 
 .sessionhead__title {
+  font-family: var(--font-serif);
   font-size: var(--fs-lg);
   font-weight: 550;
   color: var(--ink-1);
@@ -468,7 +465,7 @@
 .composer-dock {
   flex: 0 0 auto;
   padding: 6px 24px 14px;
-  background: linear-gradient(180deg, transparent, rgba(5, 8, 7, 0.86) 42%);
+  background: linear-gradient(180deg, transparent, var(--void) 42%);
 }
 
 .composer {
@@ -477,25 +474,20 @@
   margin: 0 auto;
   border-radius: var(--r-4);
   background: linear-gradient(180deg, var(--surface-2), var(--surface-1));
-  box-shadow:
-    inset 0 0 0 1px var(--line-2),
-    0 18px 40px -30px rgba(0, 0, 0, 0.9);
+  box-shadow: inset 0 0 0 1px var(--line-2);
   transition:
     box-shadow var(--d2) var(--ease-out),
     background-color var(--d2) var(--ease-out);
 }
 
 .composer:focus-within {
-  box-shadow:
-    inset 0 0 0 1px var(--accent-line),
-    0 0 0 1px rgba(94, 224, 163, 0.1),
-    0 0 32px -18px rgba(94, 224, 163, 0.55);
+  box-shadow: inset 0 0 0 1px var(--accent-line);
 }
 
 .composer.is-blocked {
   box-shadow:
     inset 0 0 0 1px var(--line-1),
-    0 0 0 1px rgba(255, 184, 77, 0.12);
+    0 0 0 1px var(--warn-line);
 }
 
 .underbar {
@@ -522,8 +514,7 @@
 }
 
 .underbar__aphorism::before {
-  content: "// ";
-  color: var(--accent-dim);
+  content: none;
 }
 
 .underbar__hint {

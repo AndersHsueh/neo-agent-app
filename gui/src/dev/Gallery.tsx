@@ -29,29 +29,30 @@ import type {
 } from "@/protocol";
 import { FIXTURE_DIFF } from "@/protocol";
 
-const assistant: AssistantBlock = {
-  kind: "assistant",
-  id: "g-a",
-  at: Date.now(),
-  tier: "deep_reasoning",
-  segments: [
-    {
-      type: "p",
-      text: "漂移是单向的：命令表里有四个档位别名，`handleCommand` 的 switch 里只有 `/tier`。",
-    },
-    { type: "ul", items: ["别名本身没错 —— `/deep` 更顺手。", "错在归一化的位置。"] },
-  ],
-};
+function assistantBlock(): AssistantBlock {
+  return {
+    kind: "assistant",
+    id: "g-a",
+    at: Date.now(),
+    tier: "deep_reasoning",
+    segments: [
+      { type: "p", text: t("gallery.sample.drift") },
+      { type: "ul", items: [t("gallery.sample.alias"), t("gallery.sample.where")] },
+    ],
+  };
+}
 
-const reasoning: ReasoningBlock = {
-  kind: "reasoning",
-  id: "g-r",
-  at: Date.now(),
-  text: "先确认漂移的方向：命令表多了，还是 switch 多了。守卫按「表 → switch」单向检查。",
-  durationMs: 1100,
-  tokens: 196,
-  done: true,
-};
+function reasoningBlock(): ReasoningBlock {
+  return {
+    kind: "reasoning",
+    id: "g-r",
+    at: Date.now(),
+    text: t("gallery.sample.reason"),
+    durationMs: 1100,
+    tokens: 196,
+    done: true,
+  };
+}
 
 const tool: ToolBlock = {
   kind: "tool",
@@ -77,16 +78,18 @@ const approval: ApprovalBlock = {
   deadlineAt: Date.now() + 120_000,
 };
 
-const question: QuestionBlock = {
-  kind: "question",
-  id: "g-q",
-  at: Date.now(),
-  prompt: "用哪条路修？三条都能让守卫变绿，代价不同。",
-  options: [
-    { key: "1", label: "入口归一化（推荐）", description: "别名与规范名只有一份映射。" },
-    { key: "2", label: "在 switch 里补四个 case", description: "最快，但重复四遍。" },
-  ],
-};
+function questionBlock(): QuestionBlock {
+  return {
+    kind: "question",
+    id: "g-q",
+    at: Date.now(),
+    prompt: t("gallery.sample.ask"),
+    options: [
+      { key: "1", label: t("gallery.sample.opt1"), description: t("gallery.sample.opt1d") },
+      { key: "2", label: t("gallery.sample.opt2"), description: t("gallery.sample.opt2d") },
+    ],
+  };
+}
 
 const stats: StatsBlock = {
   kind: "stats",
@@ -111,7 +114,7 @@ export function Gallery() {
       </header>
 
       <section class="gallery__section">
-        <h2>Buttons / Tags</h2>
+        <h2>{t("gallery.buttons")}</h2>
         <div class="gallery__row">
           <Button variant="primary">Primary</Button>
           <Button variant="ghost">Ghost</Button>
@@ -129,7 +132,7 @@ export function Gallery() {
       </section>
 
       <section class="gallery__section">
-        <h2>Tiers / Status</h2>
+        <h2>{t("gallery.tiers")}</h2>
         <div class="gallery__row">
           {(["deep_reasoning", "balanced", "fast", "default"] as const).map((tier) => (
             <span class={`seg seg--${TIER_KEYS[tier]} is-on`} key={tier}>
@@ -149,27 +152,32 @@ export function Gallery() {
       </section>
 
       <section class="gallery__section">
-        <h2>Fields / Toggles</h2>
+        <h2>{t("gallery.fields")}</h2>
         <div class="gallery__grid">
           <label class="field">
             <span class="field__label">
-              <span class="field__main">网关地址</span>
+              <span class="field__main">{t("settings.f.baseUrl")}</span>
               <code>base_url</code>
             </span>
             <input class="input" value="https://ipsapro.isoftstone.com/thor/v1" readOnly />
           </label>
           <label class="field">
             <span class="field__label">
-              <span class="field__main">密钥</span>
+              <span class="field__main">{t("settings.f.key")}</span>
               <code>api_key</code>
             </span>
             <input class="input input--masked" value="sk-···7f2a" readOnly />
           </label>
           <div class="panel__card">
-            <Toggle on label="启用环境探测" hint="env.enabled" onChange={() => undefined} />
+            <Toggle
+              on
+              label={t("settings.team.envEnabled")}
+              hint="env.enabled"
+              onChange={() => undefined}
+            />
             <Toggle
               on={false}
-              label="工具调用细节"
+              label={t("settings.classifier.toolinfo")}
               hint="toolcall_info_details"
               onChange={() => undefined}
             />
@@ -178,47 +186,45 @@ export function Gallery() {
       </section>
 
       <section class="gallery__section">
-        <h2>Code / Diff</h2>
+        <h2>{t("gallery.code")}</h2>
         <div class="gallery__grid">
           <CodeBlock
             file="src/input/commands.ts"
             lang="ts"
-            code={
-              'const TIER_ALIAS = new Map([\n  ["deep", "deep_reasoning"],\n]);\n// 归一化放在分发入口'
-            }
+            code={`const TIER_ALIAS = new Map([\n  ["deep", "deep_reasoning"],\n]);\n${t("gallery.sample.comment")}`}
           />
           <DiffView diff={FIXTURE_DIFF} />
         </div>
       </section>
 
       <section class="gallery__section">
-        <h2>Messages</h2>
+        <h2>{t("gallery.messages")}</h2>
         <div class="gallery__stream">
           <UserMessage
             block={{
               kind: "user",
               id: "g-u",
               at: Date.now(),
-              text: "先定位，别急着改。",
+              text: t("gallery.sample.user"),
               refs: [{ icon: "file", label: "tests/commands.test.ts" }],
             }}
           />
-          <AssistantMessage block={assistant} streaming={false} />
-          <ReasoningMessage block={reasoning} />
+          <AssistantMessage block={assistantBlock()} streaming={false} />
+          <ReasoningMessage block={reasoningBlock()} />
           <ToolCard block={tool} />
           <ApprovalCard block={approval} />
-          <QuestionCard block={question} />
+          <QuestionCard block={questionBlock()} />
           <StatsRow block={stats} />
         </div>
       </section>
 
       <section class="gallery__section">
-        <h2>Prose</h2>
+        <h2>{t("gallery.prose")}</h2>
         <Prose
           segments={[
             {
               type: "p",
-              text: "行内 `code`、**加粗**、*强调*，以及一个 [链接](https://example.com)。",
+              text: t("gallery.sample.prose"),
             },
             { type: "code", lang: "ts", code: "const a = 1;" },
           ]}
