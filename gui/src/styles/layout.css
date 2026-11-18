@@ -285,12 +285,14 @@
 .topbar {
   position: relative;
   z-index: 5;
-  flex: 0 0 var(--topbar-h);
-  height: var(--topbar-h);
+  container: topbar / inline-size;
+  flex: 0 0 auto;
+  min-height: var(--topbar-h);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  padding: 0 16px 0 18px;
+  gap: 8px 12px;
+  padding: 8px 16px 8px 18px;
   border-bottom: 1px solid var(--line-0);
   background: var(--surface-0);
   backdrop-filter: blur(12px) saturate(1.15);
@@ -305,14 +307,22 @@
 }
 
 .topbar__spacer {
-  flex: 1;
+  flex: 1 1 8px;
   min-width: 8px;
 }
 
 .topbar__actions {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  min-width: min(100%, max-content);
+  margin-left: auto;
+}
+
+.modewrap {
+  flex: 0 0 auto;
 }
 
 /* agent 身份块：名字会变，所以“名字”必须是唯一主角 */
@@ -320,7 +330,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  flex: 0 0 auto;
+  flex: 0 1 auto;
+  min-width: 0;
 }
 
 .agent__orb {
@@ -424,8 +435,10 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
   font-size: var(--fs-2xs);
-  color: var(--ink-3);
+  color: var(--ink-2);
+  white-space: nowrap;
 }
 
 .statechip {
@@ -503,10 +516,10 @@
 .underbar__aphorism {
   flex: 1;
   min-width: 0;
-  font-family: var(--font-mono);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.015em;
-  color: var(--ink-4);
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  letter-spacing: 0;
+  color: var(--ink-2);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -576,18 +589,6 @@
     --sidebar-w: 240px;
   }
 
-  .segmented .seg__label {
-    display: none;
-  }
-
-  .seg {
-    white-space: nowrap;
-    flex: 0 0 auto;
-    width: 30px;
-    padding: 0;
-    justify-content: center;
-  }
-
   .stream,
   .composer-dock {
     padding-left: 18px;
@@ -615,21 +616,6 @@
     z-index: var(--z-overlay);
     background: var(--surface-1);
     box-shadow: var(--shadow-1);
-  }
-
-  .segmented .seg__label {
-    display: none;
-  }
-
-  .seg {
-    white-space: nowrap;
-    flex: 0 0 auto;
-  }
-
-  .segmented .seg {
-    width: 30px;
-    padding: 0;
-    justify-content: center;
   }
 
   .searchfield .kbd {

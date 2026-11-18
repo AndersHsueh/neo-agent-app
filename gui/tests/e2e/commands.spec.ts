@@ -17,7 +17,9 @@ import {
 } from "./helpers";
 
 test.describe("真实 Hub 联调 · 命令", () => {
-  test("6a) /tier balanced 生效：命令结果块渲染 + 档位标识/会话 meta 变化", async ({ page }) => {
+  test("@hub 6a) /tier balanced 生效：命令结果块渲染 + 档位标识/会话 meta 变化", async ({
+    page,
+  }) => {
     await openWorkbench(page);
     const before = await getActiveMeta(page);
     expect(before?.tier).not.toBe("balanced");
@@ -50,7 +52,7 @@ test.describe("真实 Hub 联调 · 命令", () => {
     await renameActive(page, `e2e-cmd-tier-${Date.now()}`);
   });
 
-  test("6b) 未知命令 /nope：错误结果块 + 页面不崩（会话不变、仍在线）", async ({ page }) => {
+  test("@hub 6b) 未知命令 /nope：错误结果块 + 页面不崩（会话不变、仍在线）", async ({ page }) => {
     await openWorkbench(page);
     const sessionId = await getActiveId(page);
 

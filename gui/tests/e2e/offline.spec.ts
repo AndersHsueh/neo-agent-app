@@ -9,8 +9,29 @@
 import { expect, test } from "@playwright/test";
 import { getBoot, getBootError, getConn, preparePage, waitLive } from "./helpers";
 
-test.describe("真实 Hub 联调 · 错误路径", () => {
-  test("9a) 发现失败（503）→ 离线兜底页；恢复后点重试可自动登录", async ({ page }) => {
+test.describe("错误路径", () => {
+  test("@gui 9a) 发现失败（503）→ 离线兜底页", async ({ page }) => {
+    await page.route("**/__neo/endpoint", async (route) => {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ ok: false, reason: "hub down" }),
+      });
+    });
+
+    await preparePage(page);
+    await page.goto("/?lang=zh");
+
+    // 离线兜底：登录页 + 明确原因 + 重试按钮
+    const offline = page.locator('.login[data-role="hub-offline"]');
+    await expect(offline).toBeVisible({ timeout: 20_000 });
+    await expect(page.locator('[data-role="hub-error"]')).toContainText("hub down");
+    await expect(page.locator('[data-action="retry-discovery"]')).toBeVisible();
+    await expect.poll(() => getBoot(page)).toBe("offline");
+    expect(await getBootError(page)).toBe("hub down");
+  });
+
+  test("@hub 9a) 离线后重试可发现并登录", async ({ page }) => {
     let down = true;
     await page.route("**/__neo/endpoint", async (route) => {
       if (down) {
@@ -26,16 +47,8 @@ test.describe("真实 Hub 联调 · 错误路径", () => {
 
     await preparePage(page);
     await page.goto("/?lang=zh");
+    await expect(page.locator('.login[data-role="hub-offline"]')).toBeVisible({ timeout: 20_000 });
 
-    // 离线兜底：登录页 + 明确原因 + 重试按钮
-    const offline = page.locator('.login[data-role="hub-offline"]');
-    await expect(offline).toBeVisible({ timeout: 20_000 });
-    await expect(page.locator('[data-role="hub-error"]')).toContainText("hub down");
-    await expect(page.locator('[data-action="retry-discovery"]')).toBeVisible();
-    await expect.poll(() => getBoot(page)).toBe("offline");
-    expect(await getBootError(page)).toBe("hub down");
-
-    // 恢复：点「重新检测」→ 发现成功 → 工作台 + live
     down = false;
     await page.locator('[data-action="retry-discovery"]').click();
     await expect(page.locator("#app")).toBeVisible({ timeout: 45_000 });
@@ -43,7 +56,7 @@ test.describe("真实 Hub 联调 · 错误路径", () => {
     await expect(page.locator(".login")).toHaveCount(0);
   });
 
-  test("9b) 发现成功但 Hub 不可达（坏 url）→ .connbar 离线提示 + 持续退避重试，不进登录页", async ({
+  test("@gui 9b) 发现成功但 Hub 不可达（坏 url）→ .connbar 离线提示 + 持续退避重试，不进登录页", async ({
     page,
   }) => {
     let hits = 0;

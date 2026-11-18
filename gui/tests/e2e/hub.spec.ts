@@ -25,27 +25,18 @@ import {
   waitActiveChange,
   waitActiveId,
   waitLive,
-  waitTurnOrOutage,
-  waitTurnStartedOrOutage,
+  waitTurnActive,
+  waitTurnDone,
   waitUserMessage,
 } from "./helpers";
 
 /** 真实 LLM 的一句话；只要求两个字的回复，便于断言「不重复/不缺字」。 */
 const PING = "只回复两个字：收到";
 
-/** 真实模型没接上时跳过，不把 ECONNREFUSED 算成 GUI 失败。 */
-async function requireModel(page: Parameters<typeof waitTurnOrOutage>[0]): Promise<void> {
-  const settled = await waitTurnOrOutage(page);
-  if (settled.outage) {
-    test.skip(
-      true,
-      `provider connection failure (environment, not a GUI failure): ${settled.outage}`,
-    );
-  }
-}
-
 test.describe("真实 Hub 联调 · 主链路", () => {
-  test("1) 启动：/__neo/endpoint 发现即登录（无登录页），hub 在线 + 会话列表", async ({ page }) => {
+  test("@hub 1) 启动：/__neo/endpoint 发现即登录（无登录页），hub 在线 + 会话列表", async ({
+    page,
+  }) => {
     await openWorkbench(page);
 
     // 无登录页（LoginView 只在发现失败时兜底）
@@ -105,14 +96,8 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     // 发一句真实 prompt：正文/思维链是流式的（先 turnActive=true，再收口 stats）
     await sendMessage(page, PING);
     await waitUserMessage(page, PING);
-    const settled = await waitTurnOrOutage(page);
-    if (settled.outage) {
-      test.skip(
-        true,
-        `provider connection failure (environment, not a GUI failure): ${settled.outage}`,
-      );
-    }
-    expect(settled.sawActive).toBe(true);
+    await waitTurnActive(page);
+    await waitTurnDone(page);
 
     // assistant.end.text 是权威全文：出现且不重复/不缺字（合批下仍正确）
     const replies = await assistantTexts(page);
@@ -141,13 +126,7 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     // A 起一轮（不等待收口就切走 —— A 的 worker 继续在后台跑）
     await sendMessage(page, textA);
     await waitUserMessage(page, textA);
-    const startedOutage = await waitTurnStartedOrOutage(page);
-    if (startedOutage) {
-      test.skip(
-        true,
-        `provider connection failure (environment, not a GUI failure): ${startedOutage}`,
-      );
-    }
+    await waitTurnActive(page);
 
     await page.locator('[data-action="new-session"]').click();
     const sessionB = await waitActiveChange(page, sessionA);
@@ -160,7 +139,7 @@ test.describe("真实 Hub 联调 · 主链路", () => {
 
     await sendMessage(page, textB);
     await waitUserMessage(page, textB);
-    await requireModel(page);
+    await waitTurnDone(page);
 
     // 互不串流：B 的用户消息/回复都不含 A 的文本
     const bAll = `${(await userMessageTexts(page)).join("\n")}\n${(await assistantTexts(page)).join("\n")}`;
@@ -172,7 +151,7 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     await waitActiveId(page, sessionA);
     await waitLive(page);
     await waitUserMessage(page, textA);
-    await requireModel(page);
+    await waitTurnDone(page);
     const aAll = `${(await userMessageTexts(page)).join("\n")}\n${(await assistantTexts(page)).join("\n")}`;
     expect(aAll).toContain("收到A");
     expect(aAll).not.toContain("收到B");
@@ -186,7 +165,7 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     await openWorkbench(page);
     const sessionId = await requireActiveId(page);
     await sendMessage(page, PING);
-    await requireModel(page);
+    await waitTurnDone(page);
     await renameActive(page, `e2e-close-${Date.now()}`);
 
     await page.locator('[data-action="close-session"]').click();
@@ -236,7 +215,7 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     await openWorkbench(page);
     const sessionId = await requireActiveId(page);
     await sendMessage(page, PING);
-    await requireModel(page);
+    await waitTurnDone(page);
     await renameActive(page, `e2e-reload-${Date.now()}`);
 
     await expect(page.locator(".stream .msg--user")).toHaveCount(1);
@@ -263,7 +242,7 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     await openWorkbench(page);
     const firstId = await requireActiveId(page);
     await sendMessage(page, PING);
-    await requireModel(page);
+    await waitTurnDone(page);
     await renameActive(page, `e2e-history-${Date.now()}`);
     await expect(page.locator(".stream .stats")).toHaveCount(1);
 

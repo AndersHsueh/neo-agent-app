@@ -93,7 +93,7 @@ export function Topbar() {
             onClick={() => setModeOpen((v) => !v)}
           >
             <Icon name="shield" />
-            <span>{modeName(store.mode.value)}</span>
+            <span class="chipbtn__label">{modeName(store.mode.value)}</span>
             <Icon name="chevron-down" class="icon icon--xs" />
           </button>
           {modeOpen ? (

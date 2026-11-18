@@ -324,90 +324,78 @@ export async function waitTurnDone(page: Page, timeout = TURN_TIMEOUT): Promise<
 }
 
 /**
- * Provider 连不上（ECONNREFUSED 等）是环境问题，不是 GUI 失败。
- * 只认错误块里的连接失败，避免把正常回复里的词当成故障。
+ * 视觉夹具，不是 Hub 验收。发现返回一个不可达的 ws，再在 store 里放一条空会话，
+ * 用来量顶栏折行和对比度。真实发现 / 重连不走这里。
  */
-const PROVIDER_OUTAGE =
-  /ECONNREFUSED|ENOTFOUND|EAI_AGAIN|ETIMEDOUT|ECONNRESET|EHOSTUNREACH|fetch failed|connect E|connection refused|socket hang up|UND_ERR_|getaddrinfo|无法连接|连接被拒绝|连接失败/i;
-
-interface ErrorishBlock {
-  kind?: string;
-  message?: string;
-  code?: string;
-  error?: { code?: string; message?: string };
-}
-
-export async function providerOutageReason(page: Page): Promise<string | null> {
-  return page.evaluate((patternSource) => {
-    const neo = (window as unknown as { __neo: NeoBridge }).__neo;
-    const id = neo.store.activeId.value;
-    const state = id ? neo.store.states.value[id] : undefined;
-    const blocks = ((state?.blocks ?? []) as ErrorishBlock[]) ?? [];
-    const pattern = new RegExp(patternSource, "i");
-    for (const block of blocks) {
-      const fromError = block.error?.message;
-      const fromBanner = block.kind === "error" ? block.message : undefined;
-      const message = fromError ?? fromBanner;
-      if (!message) continue;
-      const code = block.error?.code ?? (block.kind === "error" ? block.code : "");
-      const text = `${code ?? ""} ${message}`.trim();
-      if (pattern.test(text)) return text.slice(0, 280);
-    }
-    return null;
-  }, PROVIDER_OUTAGE.source);
-}
-
-export interface TurnSettlement {
-  outage: string | null;
-  sawActive: boolean;
-}
-
-/**
- * 等到 stats 收口，或等到 provider 连接失败。
- * 调用方看到 outage 时应 test.skip，不要把 ECONNREFUSED 记成 GUI 失败。
- */
-/** 只等到「这轮已经开始」或 provider 连接失败。并行用例要在收口前切走。 */
-export async function waitTurnStartedOrOutage(
-  page: Page,
-  timeout = 20_000,
-): Promise<string | null> {
-  let outage: string | null = null;
-  await expect
-    .poll(
-      async () => {
-        outage = await providerOutageReason(page);
-        if (outage) return "outage";
-        if ((await getActiveState(page)).turnActive) return "active";
-        if ((await page.locator(".stream .stats").count()) > 0) return "done";
-        return "";
-      },
-      { timeout, intervals: [50, 100, 200, 500] },
-    )
-    .not.toBe("");
-  return outage;
-}
-
-export async function waitTurnOrOutage(
-  page: Page,
-  timeout = TURN_TIMEOUT,
-): Promise<TurnSettlement> {
-  let outage: string | null = null;
-  let sawActive = false;
-  await expect
-    .poll(
-      async () => {
-        outage = await providerOutageReason(page);
-        if (outage) return "outage";
-        const active = (await getActiveState(page)).turnActive;
-        if (active) sawActive = true;
-        const stats = await page.locator(".stream .stats").count();
-        if (stats > 0 && !active) return "ok";
-        return "";
-      },
-      { timeout, intervals: [50, 100, 200, 500, 1_000] },
-    )
-    .not.toBe("");
-  return { outage, sawActive };
+export async function openVisualFixture(page: Page, lang: "zh" | "en"): Promise<void> {
+  await preparePage(page);
+  await page.route("**/__neo/endpoint", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ok: true,
+        url: "ws://127.0.0.1:1/ws",
+        token: "0".repeat(64),
+        user: { id: "local", email: "local@localhost", displayName: "Local", role: "owner" },
+        coreVersion: "0.0.2",
+        protocolVersion: "1.2",
+      }),
+    });
+  });
+  await page.goto(`/?lang=${lang}&anim=off`);
+  await expect(page.locator("#app")).toBeVisible({ timeout: 20_000 });
+  await page.evaluate(
+    (sessionTitle) => {
+      const neo = (window as unknown as { __neo: { store: Record<string, { value: unknown }> } })
+        .__neo;
+      const write = (key: string, value: unknown) => {
+        const signal = neo.store[key];
+        if (!signal) throw new Error(`missing store.${key}`);
+        signal.value = value;
+      };
+      const id = "visual-fixture";
+      const now = Date.now();
+      const meta = {
+        id,
+        title: sessionTitle,
+        ownerId: "local",
+        status: "idle" as const,
+        tier: "default" as const,
+        provider: "",
+        model: "auto",
+        cwd: "~/neo",
+        createdAt: now,
+        updatedAt: now,
+        unread: 0,
+        mode: "ask" as const,
+      };
+      write("user", {
+        id: "local",
+        email: "local@localhost",
+        displayName: "Local",
+        role: "owner",
+      });
+      write("sessions", [meta]);
+      write("activeId", id);
+      write("states", {
+        [id]: {
+          meta,
+          seq: 0,
+          blocks: [],
+          context: { used: 1200, limit: 100_000, compactAt: 0.75 },
+          streaming: { turnActive: false },
+        },
+      });
+      write("peers", []);
+      write("boot", "ready");
+      write("connection", "live");
+      write("sidebar", "sessions");
+      write("asideOpen", true);
+    },
+    lang === "zh" ? "新会话" : "New session",
+  );
+  await expect(page.locator(".empty__sub")).toBeVisible();
 }
 
 /** 用户消息文本（DOM，含 assistant 回复）；用于「不串流/不重影」断言。 */

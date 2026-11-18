@@ -20,11 +20,13 @@ import {
   renameActive,
   sendAttachmentsViaAction,
   sendMessage,
-  waitTurnOrOutage,
+  waitTurnDone,
 } from "./helpers";
 
 test.describe("真实 Hub 联调 · 附件", () => {
-  test("8a) 选择 1 张 PNG → 预览 → 发送后本轮回显 img.chatimg + 正常收口", async ({ page }) => {
+  test("@llm 8a) 选择 1 张 PNG → 预览 → 发送后本轮回显 img.chatimg + 正常收口", async ({
+    page,
+  }) => {
     await openWorkbench(page);
     expect(await getCapabilities(page)).toContain("attachments.image");
 
@@ -49,20 +51,13 @@ test.describe("真实 Hub 联调 · 附件", () => {
     // 预览被清空
     await expect(page.locator('.composer [data-role="attach-preview"]')).toHaveCount(0);
 
-    const settled = await waitTurnOrOutage(page);
-    if (settled.outage) {
-      test.info().annotations.push({
-        type: "environment",
-        description: `provider connection failure (environment, not a GUI failure): ${settled.outage}`,
-      });
-      return;
-    }
+    await waitTurnDone(page);
     await expect(page.locator(".stream .stats")).toHaveCount(1);
 
     await renameActive(page, `e2e-attach-one-${Date.now()}`);
   });
 
-  test("8b) 附件超限：>5 张 / >5MB 被拦截提示；协议层 too_large 回传为 danger toast", async ({
+  test("@hub 8b) 附件超限：>5 张 / >5MB 被拦截提示；协议层 too_large 回传为 danger toast", async ({
     page,
   }) => {
     await openWorkbench(page);

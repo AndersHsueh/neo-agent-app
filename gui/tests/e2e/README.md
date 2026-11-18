@@ -22,16 +22,13 @@ Vite（5296）由 Playwright 的 `webServer` 起；如果本地已经有 dev ser
 
 ```bash
 cd gui
-bun x playwright test                         # 全量：gui 项目 + @llm 项目
-bun x playwright test --project=gui           # 不需要活的 LLM（发现、离线、命令、附件本地校验）
-bun x playwright test --project=llm           # 标题带 @llm 的主链路 turn
-bun x playwright test --reporter=list
-bun x playwright test -g "9b"                 # 单组
+bun x playwright test                                      # 默认只有 @gui
+NEO_E2E_HUB=1 bun x playwright test --project=hub          # 真实 Hub，不含模型回合
+NEO_E2E_LLM=1 bun x playwright test --project=llm          # 真实 Hub + 真实模型回合
 ```
 
-`@llm` 用例在模型提供方连不上（`ECONNREFUSED` 等）时 `test.skip`，记成环境问题，不算 GUI 失败。
-附件用例仍断言预览和本轮回显；收口若是同一种连接失败，用例通过并留下 environment 注释，不要求模型真的回答。
-要 12/12 全绿，需要一个真的能回文的 LLM，那是下一步，不挡这一轮。
+`hub` / `llm` 默认不进运行列表（not-run，不是 skip）。
+显式打开之后，Hub 或提供方不在就失败，连接被拒绝不会被记成通过。
 
 失败产物（trace / screenshot / aria snapshot）在 `test-results/`；
 `trace: "retain-on-failure"`、`screenshot: "only-on-failure"`。
@@ -50,7 +47,7 @@ bun x playwright test -g "9b"                 # 单组
 | `commands.spec.ts` 6b                 | 未知命令 `/nope`：`.cmdresult.is-error` 提示、页面不崩、会话/连接不变                                                                             |
 | `attachments.spec.ts` 8a              | 选 1 张 PNG → 预览 → 发送 → 本轮回显 `img.chatimg` + 正常收口                                                                                     |
 | `attachments.spec.ts` 8b              | >5 张 / >5MB 本地拦截提示；协议层 `too_large` 回传 danger toast；预览可移除                                                                       |
-| `offline.spec.ts` 9a                  | 发现 503 → 离线兜底页（原因 + 重试按钮）；恢复后点重试自动登录                                                                                    |
+| `offline.spec.ts` 9a `@gui`           | 发现 503 → 离线兜底页（原因 + 重试按钮）。恢复登录是 `@hub`                                                                                       |
 | `offline.spec.ts` 9b                  | 发现成功但 WS 不可达 → 工作台 `.connbar` 离线提示 + 退避重试，**不进登录页**                                                                      |
 
 未覆盖（需要受控 fake LLM / 注入工具调用，或属 §8 可选）：审批卡 allow/deny/allow-session、
@@ -79,8 +76,12 @@ bun x playwright test -g "9b"                 # 单组
 2. **Hub 行为不符合文档**：Hub 侧问题（附请求/回执/事件序列）。
 3. **测试假设错误**：用例对协议/时序/选择器的假设不成立（修 spec）。
 
-## 最近一次基线
+## 分组
 
-- 提供方 `http://127.0.0.1:31415/v1` 没在听时：`@llm` 主链路 turn 会 skip（连接失败），
-  不记成 GUI 失败。`gui` 项目不依赖这次 LLM 往返。
-- 全绿 12/12 仍要求真实 LLM 把 turn 收成正文。那一步不在这一轮。
+| 组             | 何时跑                       | 环境不在时                                       |
+| -------------- | ---------------------------- | ------------------------------------------------ |
+| `gui` (`@gui`) | 默认 `bun x playwright test` | 这些用例自己 mock 端点或用视觉夹具，必须真的执行 |
+| `hub` (`@hub`) | `NEO_E2E_HUB=1`              | 失败，不跳过                                     |
+| `llm` (`@llm`) | `NEO_E2E_LLM=1`              | 失败，不跳过                                     |
+
+视觉夹具（`openVisualFixture`）只用于顶栏和对比度，不是 Hub 验收。

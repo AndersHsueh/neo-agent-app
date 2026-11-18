@@ -35,10 +35,12 @@
 
 .chipbtn {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 6px;
   height: 28px;
   padding: 0 9px;
+  white-space: nowrap;
   border-radius: var(--r-2);
   background: var(--surface-1);
   box-shadow: inset 0 0 0 1px var(--line-1);
@@ -58,10 +60,36 @@
   color: var(--ink-1);
 }
 
+.chipbtn__label {
+  white-space: nowrap;
+  line-height: 1;
+}
+
 .chipbtn svg.icon {
   width: 14px;
   height: 14px;
   color: var(--ink-3);
+}
+
+/* 顶栏放不下整词时，整组收成图标。不缩小字号，也不按字折行。 */
+@container topbar (max-width: 560px) {
+  .segmented .seg__label,
+  .topbar .chipbtn__label,
+  .topbar .chipbtn .icon--xs {
+    display: none;
+  }
+
+  .topbar .seg {
+    width: 30px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .topbar .chipbtn {
+    width: 34px;
+    padding: 0;
+    justify-content: center;
+  }
 }
 
 .chipbtn.is-warn {
@@ -139,6 +167,7 @@
 /* 档位分段控件：颜色即语义，字只是辅助 */
 .segmented {
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 2px;
   padding: 2px;
@@ -150,12 +179,14 @@
 .seg {
   --tier-c: var(--ink-2);
   display: inline-flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 5px;
   height: 24px;
   padding: 0 7px;
   border-radius: var(--r-2);
-  color: var(--ink-4);
+  white-space: nowrap;
+  color: var(--ink-2);
   transition:
     color var(--d2) var(--ease-out),
     background-color var(--d2) var(--ease-out),
@@ -168,10 +199,11 @@
 }
 
 .seg__label {
-  font-family: var(--font-mono);
-  font-size: var(--fs-2xs);
-  letter-spacing: 0.04em;
+  font-family: var(--font-sans);
+  font-size: var(--fs-xs);
+  letter-spacing: 0;
   line-height: 1;
+  white-space: nowrap;
 }
 
 .seg:hover {
@@ -1409,7 +1441,8 @@
 }
 
 #input::placeholder {
-  color: var(--ink-4);
+  color: var(--ink-2);
+  opacity: 1;
 }
 
 #input:focus {
