@@ -211,7 +211,7 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     expect((await assistantTexts(page)).join("\n")).toContain("收到");
   });
 
-  test("5) @llm 刷新重连：自动重连并 attach 完整快照，历史不重影", async ({ page }) => {
+  test("5) @llm 刷新后新连接再 attach：历史不重影", async ({ page }) => {
     await openWorkbench(page);
     const sessionId = await requireActiveId(page);
     await sendMessage(page, PING);
@@ -221,7 +221,8 @@ test.describe("真实 Hub 联调 · 主链路", () => {
     await expect(page.locator(".stream .msg--user")).toHaveCount(1);
     await expect(page.locator(".stream .stats")).toHaveCount(1);
 
-    // 刷新：localStorage["neo.activeSession"] 让 GUI 重连后 attach 同一会话
+    // 只覆盖 page.reload() 之后的新 WebSocket 再 attach。
+    // 不覆盖同一页里的指数退避、Hub 进程重启，或回合进行中的恢复。
     await page.reload();
     await expect(page.locator("#app")).toBeVisible({ timeout: 45_000 });
     await waitLive(page);

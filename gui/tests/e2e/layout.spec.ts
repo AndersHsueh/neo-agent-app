@@ -227,3 +227,26 @@ test.describe("视觉夹具 · 顶栏与对比度", () => {
     }
   }
 });
+
+test.describe("未接入的侧栏", () => {
+  for (const lang of LANGS) {
+    test(`@gui ${lang} 记忆 wiki 技能显示尚未接入，而不是空集合`, async ({ page }) => {
+      await page.setViewportSize({ width: 1280, height: 900 });
+      await openVisualFixture(page, lang);
+      const unavailable =
+        lang === "zh"
+          ? "尚未接入，暂无法读取/展示。"
+          : "Not connected yet, so this cannot be read or shown.";
+      const rails = lang === "zh" ? ["记忆", "Wiki", "技能"] : ["Memory", "Wiki", "Skills"];
+      for (const name of rails) {
+        await page.locator(`.railbtn[aria-label="${name}"]`).click();
+        const text = await page.locator(".sidebar").innerText();
+        expect(text).toContain(unavailable);
+        expect(text).not.toMatch(
+          /还没有记忆|还没有 wiki|还没有已安装|No memory entries|No wiki pages|No skills installed/,
+        );
+      }
+      await expect(page.locator("#aside .linkrow b")).toHaveText(["—", "—", "—"]);
+    });
+  }
+});

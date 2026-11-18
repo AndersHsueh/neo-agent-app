@@ -42,7 +42,7 @@ NEO_E2E_LLM=1 bun x playwright test --project=llm          # 外部真提供方�
 | `hub.spec.ts` 2) 新建会话 + 一轮 turn | `session.create`→`attach` 空快照；被选中；真实 LLM 流式（turnActive）；`.stats` 收口；`assistant.end.text` 不重复不缺字                           |
 | `hub.spec.ts` 3) 两会话并行           | A 跑 turn 时切 B 发消息互不串流；`detach/attach`；切回 A 历史完整                                                                                 |
 | `hub.spec.ts` 4) close / resume       | owner `session.close` → worker 退出（`session.list` 状态 idle/dead、DOM 状态 chip）；再次 attach 恢复历史（resume）                               |
-| `hub.spec.ts` 5) 刷新重连             | `page.reload()` 后自动重连、attach 完整快照、用户消息/回复/stats 不重影                                                                           |
+| `hub.spec.ts` 5) 刷新后再 attach      | `page.reload()` 后新 WebSocket 再 attach、历史不重影。不是同一页指数退避，也不是 Hub 重启或回合中恢复                                             |
 | `hub.spec.ts` 7) transcript 历史      | 切到有历史的会话块渲染完整；`transcript.fetch{fromSeq,limit}` 翻页含 `turn.start/assistant.end/stats`                                             |
 | `commands.spec.ts` 6a                 | `/tier balanced`（真实生效）与 `/tier fast`：`.cmdresult` 渲染 + 档位标识/meta 变化                                                               |
 | `commands.spec.ts` 6b                 | 未知命令 `/nope`：`.cmdresult.is-error` 提示、页面不崩、会话/连接不变                                                                             |
