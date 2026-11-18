@@ -5,13 +5,16 @@ import { defineConfig, devices } from "@playwright/test";
  *
  * 真实 Hub / LLM 是显式集成组，不在默认命令里：
  *   NEO_E2E_HUB=1 bun x playwright test --project=hub
+ *   NEO_E2E_FAKE_LLM=1 bun x playwright test --project=fake-llm
  *   NEO_E2E_LLM=1 bun x playwright test --project=llm
  *
+ * fake-llm 跑的是同一批 @llm 用例，但提供方必须是本机假 OpenAI，不花外部 token。
+ * llm 才是外部真提供方，默认不跑。
  * 打开之后如果 Hub 或提供方不在，用例失败，不会把 ECONNREFUSED 记成跳过或通过。
- * Hub 组前置：`matrix-core hub --dev-auth`，发现文件 ~/.neo/run/core.json。
- * LLM 组还要 ~/.neo/settings.json 里的 provider 真能回文。
+ * Hub 组前置：已在跑的 hub，且 Vite 进程的 HOME 能读到那份 core.json。
  */
 const enableHub = process.env.NEO_E2E_HUB === "1";
+const enableFakeLlm = process.env.NEO_E2E_FAKE_LLM === "1";
 const enableLlm = process.env.NEO_E2E_LLM === "1";
 
 export default defineConfig({
@@ -44,6 +47,15 @@ export default defineConfig({
             name: "hub",
             grep: /@hub/,
             grepInvert: /@llm/,
+            use: { ...devices["Desktop Chrome"], channel: "chrome" },
+          },
+        ]
+      : []),
+    ...(enableFakeLlm
+      ? [
+          {
+            name: "fake-llm",
+            grep: /@llm/,
             use: { ...devices["Desktop Chrome"], channel: "chrome" },
           },
         ]

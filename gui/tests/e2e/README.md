@@ -24,10 +24,11 @@ Vite（5296）由 Playwright 的 `webServer` 起；如果本地已经有 dev ser
 cd gui
 bun x playwright test                                      # 默认只有 @gui
 NEO_E2E_HUB=1 bun x playwright test --project=hub          # 真实 Hub，不含模型回合
-NEO_E2E_LLM=1 bun x playwright test --project=llm          # 真实 Hub + 真实模型回合
+NEO_E2E_FAKE_LLM=1 bun x playwright test --project=fake-llm # 真实 Hub + 本机假 OpenAI
+NEO_E2E_LLM=1 bun x playwright test --project=llm          # 外部真提供方，会花钱，默认不跑
 ```
 
-`hub` / `llm` 默认不进运行列表（not-run，不是 skip）。
+`hub` / `fake-llm` / `llm` 默认不进运行列表（not-run，不是 skip）。
 显式打开之后，Hub 或提供方不在就失败，连接被拒绝不会被记成通过。
 
 失败产物（trace / screenshot / aria snapshot）在 `test-results/`；
@@ -78,10 +79,11 @@ NEO_E2E_LLM=1 bun x playwright test --project=llm          # 真实 Hub + 真实
 
 ## 分组
 
-| 组             | 何时跑                       | 环境不在时                                       |
-| -------------- | ---------------------------- | ------------------------------------------------ |
-| `gui` (`@gui`) | 默认 `bun x playwright test` | 这些用例自己 mock 端点或用视觉夹具，必须真的执行 |
-| `hub` (`@hub`) | `NEO_E2E_HUB=1`              | 失败，不跳过                                     |
-| `llm` (`@llm`) | `NEO_E2E_LLM=1`              | 失败，不跳过                                     |
+| 组                  | 何时跑                       | 环境不在时                                       |
+| ------------------- | ---------------------------- | ------------------------------------------------ |
+| `gui` (`@gui`)      | 默认 `bun x playwright test` | 这些用例自己 mock 端点或用视觉夹具，必须真的执行 |
+| `hub` (`@hub`)      | `NEO_E2E_HUB=1`              | 失败，不跳过                                     |
+| `fake-llm` (`@llm`) | `NEO_E2E_FAKE_LLM=1`         | 真实 Hub + 本机假 OpenAI。环境不在就失败         |
+| `llm` (`@llm`)      | `NEO_E2E_LLM=1`              | 外部真提供方。失败，不跳过。这次不跑             |
 
 视觉夹具（`openVisualFixture`）只用于顶栏和对比度，不是 Hub 验收。

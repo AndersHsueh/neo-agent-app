@@ -1,0 +1,28 @@
+
+Running 17 tests using 1 worker
+
+(node:8949) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [gui] › tests/e2e/layout.spec.ts:51:7 › 视觉夹具 · 顶栏与对比度 › @gui zh 1024px 顶栏不按字折行，正文对比度够 (512ms)
+  ✓   2 [gui] › tests/e2e/layout.spec.ts:51:7 › 视觉夹具 · 顶栏与对比度 › @gui en 1024px 顶栏不按字折行，正文对比度够 (370ms)
+  ✓   3 [gui] › tests/e2e/layout.spec.ts:51:7 › 视觉夹具 · 顶栏与对比度 › @gui zh 1280px 顶栏不按字折行，正文对比度够 (399ms)
+  ✓   4 [gui] › tests/e2e/layout.spec.ts:51:7 › 视觉夹具 · 顶栏与对比度 › @gui en 1280px 顶栏不按字折行，正文对比度够 (356ms)
+  ✓   5 [gui] › tests/e2e/offline.spec.ts:13:3 › 错误路径 › @gui 9a) 发现失败（503）→ 离线兜底页 (290ms)
+  ✓   6 [gui] › tests/e2e/offline.spec.ts:59:3 › 错误路径 › @gui 9b) 发现成功但 Hub 不可达（坏 url）→ .connbar 离线提示 + 持续退避重试，不进登录页 (1.1s)
+(node:9286) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [hub] › tests/e2e/attachments.spec.ts:60:3 › 真实 Hub 联调 · 附件 › @hub 8b) 附件超限：>5 张 / >5MB 被拦截提示；协议层 too_large 回传为 danger toast (1.3s)
+  ✓   8 [hub] › tests/e2e/commands.spec.ts:20:3 › 真实 Hub 联调 · 命令 › @hub 6a) /tier balanced 生效：命令结果块渲染 + 档位标识/会话 meta 变化 (913ms)
+  ✓   9 [hub] › tests/e2e/commands.spec.ts:55:3 › 真实 Hub 联调 · 命令 › @hub 6b) 未知命令 /nope：错误结果块 + 页面不崩（会话不变、仍在线） (724ms)
+  ✓  10 [hub] › tests/e2e/hub.spec.ts:37:3 › 真实 Hub 联调 · 主链路 › @hub 1) 启动：/__neo/endpoint 发现即登录（无登录页），hub 在线 + 会话列表 (622ms)
+  ✓  11 [hub] › tests/e2e/offline.spec.ts:34:3 › 错误路径 › @hub 9a) 离线后重试可发现并登录 (524ms)
+(node:9641) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  12 [fake-llm] › tests/e2e/attachments.spec.ts:27:3 › 真实 Hub 联调 · 附件 › @llm 8a) 选择 1 张 PNG → 预览 → 发送后本轮回显 img.chatimg + 正常收口 (1.6s)
+  ✓  13 [fake-llm] › tests/e2e/hub.spec.ts:75:3 › 真实 Hub 联调 · 主链路 › 2) @llm 新建会话 → 出现在列表且被选中；一轮 turn 流式正文 + .stats + 文本不重复 (1.7s)
+  ✓  14 [fake-llm] › tests/e2e/hub.spec.ts:120:3 › 真实 Hub 联调 · 主链路 › 3) @llm 两会话并行：A 跑 turn 时切 B 发消息互不串流；切回 A 历史仍在 (1.9s)
+  ✓  15 [fake-llm] › tests/e2e/hub.spec.ts:162:3 › 真实 Hub 联调 · 主链路 › 4) @llm session.close → worker 退出（列表状态 idle/dead），再次 attach 恢复历史 (1.8s)
+  ✓  16 [fake-llm] › tests/e2e/hub.spec.ts:214:3 › 真实 Hub 联调 · 主链路 › 5) @llm 刷新重连：自动重连并 attach 完整快照，历史不重影 (1.7s)
+  ✓  17 [fake-llm] › tests/e2e/hub.spec.ts:239:3 › 真实 Hub 联调 · 主链路 › 7) @llm transcript 历史：切到有历史的会话块渲染完整 + transcript.fetch 翻页 (1.8s)
+
+  17 passed (19.2s)

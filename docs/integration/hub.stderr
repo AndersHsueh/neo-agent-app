@@ -1,0 +1,37 @@
+[hub] ws listening on ws://127.0.0.1:43221/ws
+matrix-core hub v0.0.2
+  ws=ws://127.0.0.1:43221/ws
+  cwd=/tmp/neo-itest/work
+  token=/tmp/neo-itest/home/.neo/run/core.token
+  run=/tmp/neo-itest/home/.neo/run/core.json
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work --resume 20261118-170938-c385nc
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work --resume 20261118-171026-y8d6f9
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work
+[hub] spawn worker /tmp/neo-src/neo-core-serve/src/main.ts serve --stdio --cwd /tmp/neo-itest/work

@@ -76,6 +76,7 @@ export function Topbar() {
               type="button"
               class={`seg seg--${TIER_KEYS[tier]}${meta?.tier === tier ? " is-on" : ""}`}
               title={t(`tier.${TIER_KEYS[tier]}`)}
+              aria-label={tierShort(tier)}
               disabled={!meta}
               onClick={() => void setTier(tier)}
             >
@@ -89,7 +90,8 @@ export function Topbar() {
           <button
             class={`chipbtn${store.mode.value === "plan" ? " is-warn" : ""}`}
             type="button"
-            title={t("topbar.mode")}
+            title={`${modeName(store.mode.value)} · ${t("topbar.mode")}`}
+            aria-label={modeName(store.mode.value)}
             onClick={() => setModeOpen((v) => !v)}
           >
             <Icon name="shield" />

@@ -1,6 +1,16 @@
 /**
  * @gui 视觉夹具。不连真实 Hub。
- * 顶栏中文不能按字折行；窄宽度整组收成图标。空态 / 占位 / 元信息对比度要过线。
+ *
+ * 对比度算法（只读最终计算样式，不改色）：
+ *  1. 前景取 getComputedStyle(el).color；占位符取 ::placeholder。再乘该样式的 opacity。
+ *  2. 背景从元素向根走，把每一层 background-color 按 alpha 叠到不透明。
+ *     background-image（渐变）的 background-color 是透明，因此记到第一层不透明底，
+ *     通常是页面 --void。这是偏保守的底，不是像素取样。
+ *  3. 比值用 WCAG 相对亮度：(L1+0.05)/(L2+0.05)。
+ *  普通字号门槛 4.5:1，font-size ≥ 24px 门槛 3:1。
+ *
+ * 顶栏中文不能按字折行。容器窄于 560px 时整组收成图标，
+ * 这时可见文字被 display:none 拿掉，名称只靠 aria-label，提示靠 title。
  */
 import { appendFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
@@ -32,6 +42,7 @@ interface FixtureProbe {
   sidebarHeading: string;
   eyebrows: string[];
   agent: string;
+  names: { title: string; label: string }[];
 }
 
 test.describe("视觉夹具 · 顶栏与对比度", () => {
@@ -145,6 +156,12 @@ test.describe("视觉夹具 · 顶栏与对比度", () => {
               (el.textContent ?? "").trim(),
             ),
             agent: (document.querySelector(".agent .eyebrow")?.textContent ?? "").trim(),
+            names: [...document.querySelectorAll(".topbar .seg, .topbar .modewrap > .chipbtn")].map(
+              (el) => ({
+                title: el.getAttribute("title") ?? "",
+                label: el.getAttribute("aria-label") ?? "",
+              }),
+            ),
           } satisfies FixtureProbe;
         });
 
@@ -167,7 +184,15 @@ test.describe("视觉夹具 · 顶栏与对比度", () => {
           ).toBeGreaterThanOrEqual(floor);
         }
 
+        expect(probe.names).toHaveLength(5);
+        for (const name of probe.names) {
+          expect(name.title.length, "tooltip").toBeGreaterThan(0);
+          expect(name.label.length, "accessible name").toBeGreaterThan(0);
+        }
+        const labels = probe.names.map((name) => name.label).join(" ");
         if (lang === "zh") {
+          expect(labels).toContain("深思");
+          expect(labels).toContain("询问");
           expect(probe.sidebarHeading).toBe("会话");
           expect(probe.sidebarHeading).not.toContain("构造");
           expect(probe.agent).toBe("智能体");
@@ -175,6 +200,8 @@ test.describe("视觉夹具 · 顶栏与对比度", () => {
           expect(probe.eyebrows).toContain("会话");
           expect(probe.eyebrows.join(" ")).not.toMatch(/PROVIDER|SESSION/);
         } else {
+          expect(labels).toContain("DEEP");
+          expect(labels).toContain("ASK");
           expect(probe.sidebarHeading.toLowerCase()).toBe("sessions");
           expect(probe.agent).toBe("AGENT");
           expect(probe.eyebrows).toContain("Provider");
